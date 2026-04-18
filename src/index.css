@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+:root {
+  --gov-bg-deep: #081a33;
+  --gov-bg-panel: rgba(10, 31, 57, 0.78);
+  --gov-bg-panel-strong: rgba(9, 27, 49, 0.92);
+  --gov-border: rgba(95, 142, 195, 0.52);
+  --gov-border-strong: #6b93c2;
+  --gov-grid: rgba(124, 158, 196, 0.18);
+  --gov-text-primary: #edf3fb;
+  --gov-text-secondary: #b8c9dd;
+  --gov-text-muted: #8da5c2;
+  --gov-blue: #2f5f9b;
+  --gov-blue-light: #5f8bc1;
+  --gov-blue-soft: #88a9cf;
+  --gov-gold: #c7a45a;
+  --gov-gold-soft: #d7b97a;
+  --gov-success: #6f9b79;
+  --gov-danger: #b35b52;
+}
+
+/* autofit.js 全局样式支持 */
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--gov-bg-deep);
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+
+@theme {
+  --animate-marquee: marquee 15s linear infinite;
+  --animate-shine: shine 4s linear infinite;
+  --animate-beam-left: beam-left 2.5s linear infinite;
+  --animate-beam-right: beam-right 2.5s linear infinite;
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  @keyframes shine {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes beam-left {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(300%); }
+  }
+
+  @keyframes beam-right {
+    0%   { transform: translateX(300%); }
+    100% { transform: translateX(-100%); }
+  }
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(17, 58, 105, 0.2);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(79, 195, 247, 0.5);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(79, 195, 247, 0.8);
+}
+
+.gov-tooltip {
+  background: var(--gov-bg-panel-strong) !important;
+  border: 1px solid var(--gov-border-strong) !important;
+  color: var(--gov-text-primary) !important;
+  box-shadow: 0 8px 18px rgba(5, 15, 29, 0.28);
+}
