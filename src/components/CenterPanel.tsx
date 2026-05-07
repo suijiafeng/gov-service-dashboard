@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import ReactECharts from 'echarts-for-react';
 import * as echarts from 'echarts';
+import CNJson from '../api/mock/china.json';
 import { Card } from './Card';
 import { useEquipmentStats, useMapFlowData, useDailyServiceStats } from '../hooks/useData';
+
+const chinaMapData = CNJson as Parameters<typeof echarts.registerMap>[1];
 
 export function CenterPanel() {
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -12,15 +15,22 @@ export function CenterPanel() {
   
 
   useEffect(() => {
-    fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
-      .then(response => response.json())
-      .then(geoJson => {
-        echarts.registerMap('china', geoJson);
-        setMapLoaded(true);
-      })
-      .catch(error => {
-        console.error('Error loading map data:', error);
-      });
+    // fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
+    //   .then(response => response.json())
+    //   .then(geoJson => {
+    //     echarts.registerMap('china', geoJson);
+    //     setMapLoaded(true);
+    //   })
+    //   .catch(error => {
+    //     console.error('Error loading map data:', error);
+    //   });
+
+     try {
+      echarts.registerMap('china', chinaMapData);
+      setMapLoaded(true);
+    } catch (error) {
+      console.error('Error registering local china geojson:', error);
+    }
   }, []);
 
   const getMapOptions = () => ({
