@@ -102,10 +102,87 @@ export function useMapFlowData() {
   } as api.MapFlowData);
 }
 
+export function useProvinceVisits() {
+  return useApiData(api.getProvinceVisits, [] as api.ProvinceVisitItem[]);
+}
+
 export function useEducationStats() {
   return useApiData(api.getEducationStats, { bachelor: 0 } as api.EducationStats);
 }
 
 export function useAppointmentSlots() {
   return useApiData(api.getAppointmentSlots, [] as { time: string; count: number }[]);
+}
+
+// ============ v2 调度模式 Hooks ============
+
+export function useQueueData() {
+  return useApiData(api.getQueueData, [] as api.QueueItem[]);
+}
+
+export function useWindowMatrix() {
+  return useApiData(api.getWindowMatrix, [] as api.WindowMatrixItem[]);
+}
+
+export function useEfficiencyStats() {
+  return useApiData(api.getEfficiencyStats, {
+    onTimeRate: 0,
+    immediateRate: 0,
+    avgProcessMinutes: 0,
+    todayAccepted: 0,
+  } as api.EfficiencyStats);
+}
+
+export function useOverdueItems() {
+  return useApiData(api.getOverdueItems, [] as api.OverdueRecord[]);
+}
+
+export function useSatisfactionStats() {
+  return useApiData(api.getSatisfactionStats, {
+    todayRate: 0,
+    weekRate: 0,
+    counts: { great: 0, good: 0, ok: 0, bad: 0 },
+    badReviews: [],
+  } as api.SatisfactionStats);
+}
+
+export function useStaffPerformance() {
+  return useApiData(api.getStaffPerformance, [] as api.StaffPerformanceItem[]);
+}
+
+export function useSiteData() {
+  return useApiData(api.getSiteData, [] as api.SiteItem[]);
+}
+
+export function useResidenceDistribution() {
+  return useApiData(api.getResidenceDistribution, [] as api.ResidenceItem[]);
+}
+
+export function useDiversionStats() {
+  return useApiData(api.getDiversionStats, {
+    onlineRate: 0,
+    onlineRateTrend: 0,
+    noShowRate: 0,
+    selfServiceShare: 0,
+  } as api.DiversionStats);
+}
+
+export function useDeviceStats() {
+  return useApiData(api.getDeviceStats, { devices: [], workOrders: [] } as api.DeviceStats);
+}
+
+export function useSiteDetails() {
+  return useApiData(api.getSiteDetails, {} as api.SiteDetails);
+}
+
+export function useWindowDetails() {
+  return useApiData(api.getWindowDetails, [] as api.WindowDetailItem[]);
+}
+
+export function useServiceItemRanking() {
+  return useApiData(api.getServiceItemRanking, [] as api.ServiceItemRankingItem[]);
+}
+
+export function usePerformanceTrend() {
+  return useApiData(api.getPerformanceTrend, [] as api.PerformanceTrendItem[]);
 }
