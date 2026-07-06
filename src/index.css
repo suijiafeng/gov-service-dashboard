@@ -1,22 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  --gov-bg-deep: #081a33;
-  --gov-bg-panel: rgba(10, 31, 57, 0.78);
-  --gov-bg-panel-strong: rgba(9, 27, 49, 0.92);
-  --gov-border: rgba(95, 142, 195, 0.52);
-  --gov-border-strong: #6b93c2;
-  --gov-grid: rgba(124, 158, 196, 0.18);
-  --gov-text-primary: #edf3fb;
-  --gov-text-secondary: #b8c9dd;
-  --gov-text-muted: #8da5c2;
-  --gov-blue: #2f5f9b;
-  --gov-blue-light: #5f8bc1;
-  --gov-blue-soft: #88a9cf;
-  --gov-gold: #c7a45a;
-  --gov-gold-soft: #d7b97a;
-  --gov-success: #6f9b79;
-  --gov-danger: #b35b52;
+  --gov-bg-deep: #0a2140;
+  --gov-bg-panel: rgba(14, 40, 74, 0.72);
+  --gov-bg-panel-strong: rgba(13, 37, 70, 0.94);
+  --gov-border: rgba(110, 168, 228, 0.55);
+  --gov-border-strong: #7fb3e8;
+  --gov-grid: rgba(140, 180, 225, 0.2);
+  --gov-text-primary: #f2f7fd;
+  --gov-text-secondary: #c9daee;
+  --gov-text-muted: #9ab6d6;
+  --gov-blue: #2e7bd1;
+  --gov-blue-light: #55a6e8;
+  --gov-blue-soft: #7cc4f0;
+  --gov-gold: #f0b95a;
+  --gov-gold-soft: #ffd188;
+  --gov-success: #43cf8c;
+  --gov-danger: #f2655c;
 }
 
 /* autofit.js 全局样式支持 */
@@ -59,6 +59,13 @@ html, body {
   @keyframes beam-right {
     0%   { transform: translateX(300%); }
     100% { transform: translateX(-100%); }
+  }
+
+  --animate-modal-in: modal-in 0.22s ease-out;
+
+  @keyframes modal-in {
+    0%   { opacity: 0; transform: translateY(14px) scale(0.97); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
   }
 }
 
