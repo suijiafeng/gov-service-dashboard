@@ -8,7 +8,14 @@
 
 在线预览：https://suijiafeng.github.io/gov-service-dashboard/
 
-![GovVision Dashboard 项目截图](./screenshot/Snipaste_2026-04-18_20-57-09.png)
+
+调度模式截图：
+
+![GovVision Dashboard 项目截图（2026-07-03）](./screenshot/Snipaste_2026-07-03_23-23-28.png)
+
+汇报模式截图：
+
+![GovVision Dashboard 项目截图（2026-04-18）](./screenshot/Snipaste_2026-04-18_20-57-09.png)
 
 当前界面采用典型政务大屏布局：
 
