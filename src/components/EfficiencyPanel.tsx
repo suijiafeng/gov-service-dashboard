@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, ComposedChart, Bar, Line } from 'recharts';
 import { Card } from './Card';
 import { Modal } from './Modal';
 import { ChartLegend } from './LeftPanel';
+import { QueryState } from './QueryState';
+import { EChart, axisTooltip, barSeries, categoryAxis, chartGrid, valueAxis } from './EChart';
 import { useEfficiencyStats, useOverdueItems, useSatisfactionStats, useStaffPerformance } from '../hooks/useData';
+import { usePhoneLayout } from '../hooks/usePhoneLayout';
 
 function KpiTile({ label, value, unit, warn }: { label: string; value: string; unit?: string; warn?: boolean }) {
   return (
@@ -18,10 +20,15 @@ function KpiTile({ label, value, unit, warn }: { label: string; value: string; u
 }
 
 export function EfficiencyPanel() {
-  const { data: efficiency } = useEfficiencyStats();
-  const { data: overdue } = useOverdueItems();
-  const { data: satisfaction } = useSatisfactionStats();
-  const { data: staff } = useStaffPerformance();
+  const efficiencyQuery = useEfficiencyStats();
+  const overdueQuery = useOverdueItems();
+  const satisfactionQuery = useSatisfactionStats();
+  const staffQuery = useStaffPerformance();
+  const phone = usePhoneLayout();
+  const efficiency = efficiencyQuery.data;
+  const overdue = overdueQuery.data;
+  const satisfaction = satisfactionQuery.data;
+  const staff = staffQuery.data;
   const [selectedOverdue, setSelectedOverdue] = useState<string | null>(null);
   const [urged, setUrged] = useState<Set<string>>(new Set());
 
@@ -29,20 +36,23 @@ export function EfficiencyPanel() {
     satisfaction.counts.great + satisfaction.counts.good + satisfaction.counts.ok + satisfaction.counts.bad;
 
   return (
-    <div className="flex flex-col space-y-4 w-[28%] h-full pl-2">
+    <div className="side-panel flex flex-col space-y-4 w-[28%] h-full pl-2">
 
       {/* 办件时效 KPI */}
       <Card title="办件时效" className="flex-[1.6] min-h-0">
-        <div className="grid grid-cols-4 gap-2 h-full items-center">
+        <QueryState query={efficiencyQuery}>
+        <div className="stat-grid-4 grid grid-cols-4 gap-2 h-full items-center">
           <KpiTile label="按期办结率" value={`${efficiency.onTimeRate}`} unit="%" warn={efficiency.onTimeRate < 99} />
           <KpiTile label="即办件占比" value={`${efficiency.immediateRate}`} unit="%" />
           <KpiTile label="平均办理" value={`${efficiency.avgProcessMinutes}`} unit="min" />
           <KpiTile label="今日受理" value={efficiency.todayAccepted.toLocaleString()} unit="件" />
         </div>
+        </QueryState>
       </Card>
 
       {/* 超期 / 临期红榜 */}
-      <Card title={`超期 / 临期承诺件（${overdue.length}）`} className="flex-[2.4] min-h-0">
+      <Card title={overdueQuery.loading ? '超期 / 临期承诺件（…）' : overdueQuery.error ? '超期 / 临期承诺件' : `超期 / 临期承诺件（${overdue.length}）`} className="flex-[2.4] min-h-0">
+        <QueryState query={overdueQuery} ignoreEmpty>
         <div className="h-full overflow-y-auto custom-scrollbar space-y-2 pr-1">
           {overdue.map(o => (
             <div
@@ -75,11 +85,13 @@ export function EfficiencyPanel() {
             </div>
           )}
         </div>
+        </QueryState>
       </Card>
 
       {/* 好差评满意度 */}
       <Card title="好差评满意度" className="flex-[2.6] min-h-0">
-        <div className="flex h-full space-x-3">
+        <QueryState query={satisfactionQuery}>
+        <div className="split-row flex h-full space-x-3">
           <div className="flex flex-col items-center justify-center w-24 shrink-0">
             <div className="relative w-20 h-20">
               <svg className="absolute inset-0 w-full h-full -rotate-90">
@@ -102,6 +114,9 @@ export function EfficiencyPanel() {
           <div className="flex-1 flex flex-col min-w-0">
             <div className="text-[10px] text-[var(--gov-text-secondary)] mb-1 tracking-[0.15em]">差评明细（限期整改）</div>
             <div className="flex-1 overflow-y-auto custom-scrollbar space-y-1.5">
+              {satisfaction.badReviews.length === 0 && (
+                <div className="text-[10px] text-[var(--gov-success)]">✓ 今日暂无差评</div>
+              )}
               {satisfaction.badReviews.map((r, i) => (
                 <div key={i} className="bg-[rgba(242,101,92,0.16)] border-l-2 border-[color:var(--gov-danger)] px-2 py-1 rounded-sm">
                   <div className="flex justify-between text-[10px]">
@@ -117,24 +132,38 @@ export function EfficiencyPanel() {
             </div>
           </div>
         </div>
+        </QueryState>
       </Card>
 
       {/* 窗口人员绩效 */}
       <Card title="窗口人员绩效" className="flex-[2.4] min-h-0">
-        <div className="h-full relative">
+        <QueryState query={staffQuery}>
+        <div className="chart-frame h-full relative">
           <ChartLegend items={[{ label: '接待数', color: '#55a6e8' }, { label: '满意度%', color: '#f0b95a' }]} />
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={staff} margin={{ top: 12, right: 0, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--gov-grid)" />
-              <XAxis dataKey="name" stroke="var(--gov-text-muted)" fontSize={10} tickLine={false} axisLine={false} />
-              <YAxis yAxisId="left" stroke="var(--gov-text-muted)" fontSize={10} tickLine={false} axisLine={false} />
-              <YAxis yAxisId="right" orientation="right" domain={[95, 100]} hide />
-              <Tooltip contentStyle={{ backgroundColor: 'rgba(12,35,68,0.94)', borderColor: '#7fb3e8', color: '#f2f7fd' }} />
-              <Bar yAxisId="left" dataKey="接待数" barSize={8} fill="#55a6e8" radius={[2, 2, 0, 0]} />
-              <Line yAxisId="right" type="monotone" dataKey="满意度" stroke="#f0b95a" strokeWidth={2} dot={{ r: 3, fill: '#f0b95a', strokeWidth: 0 }} />
-            </ComposedChart>
-          </ResponsiveContainer>
+          <EChart option={{
+            grid: chartGrid(phone ? 40 : 0),
+            tooltip: axisTooltip,
+            xAxis: categoryAxis(staff.map(d => d.name), phone ? 40 : 0),
+            yAxis: [
+              valueAxis(),
+              valueAxis({ min: 95, max: 100, axisLabel: { show: false }, splitLine: { show: false } }),
+            ],
+            series: [
+              barSeries('接待数', staff.map(d => d['接待数']), '#55a6e8', 8),
+              {
+                name: '满意度',
+                type: 'line',
+                yAxisIndex: 1,
+                data: staff.map(d => d['满意度']),
+                symbol: 'circle',
+                symbolSize: 6,
+                lineStyle: { width: 2, color: '#f0b95a' },
+                itemStyle: { color: '#f0b95a' },
+              },
+            ],
+          }} />
         </div>
+        </QueryState>
       </Card>
 
       {/* 承诺件详情弹窗 */}
@@ -144,6 +173,7 @@ export function EfficiencyPanel() {
         const isOver = o.level === 'overdue';
         return (
           <Modal title="承诺件详情" subtitle={o.id} onClose={() => setSelectedOverdue(null)} width={500}>
+            <QueryState query={overdueQuery}>
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-semibold text-[var(--gov-text-primary)]">{o.item}</span>
               <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-sm shrink-0 ml-2 ${
@@ -181,6 +211,7 @@ export function EfficiencyPanel() {
             >
               {urged.has(o.id) ? '✓ 督办通知已发送至责任科室' : '发送督办通知'}
             </button>
+            </QueryState>
           </Modal>
         );
       })()}

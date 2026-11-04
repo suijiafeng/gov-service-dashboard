@@ -32,16 +32,14 @@
 - TypeScript
 - Vite
 - Tailwind CSS 4
-- Recharts
 - ECharts + `echarts-for-react`
 - `autofit.js`
-- `date-fns`
 - `lucide-react`
 
 ## 功能特性
 
 - 基于 1920 × 1080 大屏设计稿进行适配，支持窗口缩放自动等比缩放
-- 使用 Recharts 与 ECharts 混合构建图表与地图模块
+- 使用 ECharts 构建图表与地图模块
 - 支持地图流向线、城市散点、趋势图、柱状图、组合图等可视化内容
 - 提供数字递增、列表轮播、高亮轮播、图表波动刷新等动态效果
 - 顶部时间实时刷新，公告内容支持跑马灯展示

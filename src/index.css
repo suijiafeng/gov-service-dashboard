@@ -84,9 +84,190 @@ html, body {
   background: rgba(79, 195, 247, 0.8);
 }
 
+.chart-plot-fixed {
+  height: 108px !important;
+  min-height: 108px !important;
+}
+
 .gov-tooltip {
   background: var(--gov-bg-panel-strong) !important;
   border: 1px solid var(--gov-border-strong) !important;
   color: var(--gov-text-primary) !important;
   box-shadow: 0 8px 18px rgba(5, 15, 29, 0.28);
+}
+
+/* 手机宽度：关掉大屏缩放后，三栏改为纵向堆叠，图表给固定高度 */
+@media (max-width: 767px) {
+  html, body {
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  #root {
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+  }
+
+  .dashboard {
+    height: auto !important;
+    min-height: 100vh;
+    overflow: visible !important;
+    background-attachment: fixed;
+  }
+
+  .dash-shell {
+    height: auto !important;
+    min-height: 100%;
+  }
+
+  .dash-main {
+    flex-direction: column !important;
+    overflow: visible !important;
+    height: auto !important;
+    flex: none !important;
+    padding: 8px 10px 28px !important;
+    gap: 12px !important;
+    max-width: 100%;
+  }
+
+  .side-panel,
+  .center-panel,
+  .center-slot {
+    width: 100% !important;
+    height: auto !important;
+    flex: none !important;
+    min-height: 0 !important;
+    max-width: 100%;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .card-shell {
+    flex: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .card-body {
+    overflow: visible;
+    flex: none !important;
+    height: auto !important;
+  }
+
+  .chart-frame {
+    height: auto !important;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chart-legend {
+    position: static !important;
+    max-width: 100%;
+    margin-bottom: 4px;
+  }
+
+  .chart-plot-fixed {
+    height: 150px !important;
+    min-height: 150px !important;
+  }
+
+  .chart-frame > .chart-plot:not(.chart-plot-fixed) {
+    width: 100% !important;
+    height: 200px !important;
+    min-height: 200px !important;
+    flex: none;
+  }
+
+  .map-stage,
+  .bottom-stage {
+    flex: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .map-stage {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .map-overlay,
+  .kpi-stack {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100%;
+    right: auto !important;
+    left: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+  }
+
+  .kpi-stack {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .map-canvas-wrap {
+    height: 320px !important;
+    padding-top: 0 !important;
+    flex: none;
+  }
+
+  .split-row {
+    flex-direction: column !important;
+    height: auto !important;
+    align-items: stretch !important;
+    gap: 12px;
+  }
+
+  .split-row > * {
+    width: 100% !important;
+    height: auto !important;
+    flex: none !important;
+    min-width: 0 !important;
+  }
+
+  .visit-grid,
+  .stat-grid-4 {
+    height: auto !important;
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .visit-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .window-grid {
+    height: auto !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-auto-rows: minmax(68px, auto);
+  }
+
+  .modal-split {
+    flex-direction: column !important;
+    height: auto !important;
+  }
+
+  .modal-split > * {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0;
+  }
+
+  .data-table {
+    table-layout: fixed;
+    font-size: 12px;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding-left: 2px;
+    padding-right: 2px;
+    word-break: break-word;
+  }
 }

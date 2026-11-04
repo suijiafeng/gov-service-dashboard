@@ -6,6 +6,7 @@ import { CenterPanel } from './components/CenterPanel';
 import { RightPanel } from './components/RightPanel';
 import { DispatchPanel } from './components/DispatchPanel';
 import { EfficiencyPanel } from './components/EfficiencyPanel';
+import { usePhoneLayout } from './hooks/usePhoneLayout';
 import bgImage from './assets/bg.jpg';
 
 // 调度模式：值班长日常运营指挥；汇报模式：领导视察 / 上级检查展示
@@ -13,20 +14,22 @@ export type DashboardMode = 'dispatch' | 'report';
 
 export function App() {
   const [mode, setMode] = useState<DashboardMode>('dispatch');
+  const phone = usePhoneLayout();
 
-  // 初始化 autofit 实现大屏自适应
+  // 大屏用 autofit 等比缩放；手机宽度关掉缩放，改走流式布局，否则 1920 稿会被缩成不可读的小字
   useEffect(() => {
+    if (phone) return;
     autofit.init({
-      el: 'body',  // 渲染容器
-      dw: 1920,          // 设计稿宽度
-      dh: 1080,          // 设计稿高度
-      resize: true       // 监听窗口变化
+      el: 'body',
+      dw: 1920,
+      dh: 1080,
+      resize: true,
     });
 
     return () => {
       autofit.off();
     };
-  }, []);
+  }, [phone]);
 
   return (
     <div
@@ -48,13 +51,13 @@ export function App() {
       />
 
 
-      <div className="relative z-10 flex flex-col" style={{ width: '100%', height: '100%' }}>
+      <div className="dash-shell relative z-10 flex flex-col" style={{ width: '100%', height: '100%' }}>
         {/* Header */}
         <Header mode={mode} onToggleMode={() => setMode(m => (m === 'dispatch' ? 'report' : 'dispatch'))} />
 
         {/* Main Content */}
         <main
-          className="flex overflow-hidden"
+          className="dash-main flex overflow-hidden"
           style={{
             flex: 1,
             padding: '8px 16px 16px 16px',
@@ -65,7 +68,7 @@ export function App() {
           {mode === 'dispatch' ? <DispatchPanel /> : <LeftPanel />}
 
           {/* Center Map & Stats */}
-          <div style={{ flex: 1, height: '100%', minWidth: 0 }}>
+          <div className="center-slot" style={{ flex: 1, height: '100%', minWidth: 0 }}>
             <CenterPanel mode={mode} />
           </div>
 

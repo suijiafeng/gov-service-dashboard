@@ -1,5 +1,5 @@
 // 轮播和动态效果 Hooks
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 // 数字递增动画 Hook
 export function useCountUp(targetValue: number, duration: number = 2000) {

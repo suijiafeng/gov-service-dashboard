@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import ReactECharts from 'echarts-for-react';
-import * as echarts from 'echarts';
+import EChartsReactCore from 'echarts-for-react/esm/core';
+import { echarts } from '../lib/echarts';
 import HZJson from '../api/mock/hangzhou.json';
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ComposedChart, Bar, Line } from 'recharts';
 import { Card } from './Card';
 import { Modal } from './Modal';
 import { ChartLegend } from './LeftPanel';
+import { EChart, areaSeries, axisTooltip, barSeries, categoryAxis, chartGrid, valueAxis } from './EChart';
+import { QueryState } from './QueryState';
 import {
   useDailyServiceStats,
   useSiteData,
@@ -15,6 +16,7 @@ import {
   usePerformanceTrend,
   useSiteDetails,
 } from '../hooks/useData';
+import { usePhoneLayout } from '../hooks/usePhoneLayout';
 import type { DashboardMode } from '../App';
 
 const hangzhouMapData = HZJson as Parameters<typeof echarts.registerMap>[1];
@@ -29,24 +31,36 @@ const SITE_STATUS_META = {
 
 export function CenterPanel({ mode }: { mode: DashboardMode }) {
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState<Error | null>(null);
+  const [mapAttempt, setMapAttempt] = useState(0);
   const [selectedSite, setSelectedSite] = useState<string | null>(null);
-  const chartRef = useRef<ReactECharts>(null);
-  const { data: siteDetails } = useSiteDetails();
-  const { data: dailyStats } = useDailyServiceStats();
-  const { data: sites } = useSiteData();
-  const { data: residence } = useResidenceDistribution();
-  const { data: diversion } = useDiversionStats();
-  const { data: deviceStats } = useDeviceStats();
-  const { data: performanceTrend } = usePerformanceTrend();
+  const chartRef = useRef<EChartsReactCore>(null);
+  const phone = usePhoneLayout();
+  const siteDetailsQuery = useSiteDetails();
+  const dailyQuery = useDailyServiceStats();
+  const sitesQuery = useSiteData();
+  const residenceQuery = useResidenceDistribution();
+  const diversionQuery = useDiversionStats();
+  const deviceQuery = useDeviceStats();
+  const trendQuery = usePerformanceTrend();
+  const siteDetails = siteDetailsQuery.data;
+  const dailyStats = dailyQuery.data;
+  const sites = sitesQuery.data;
+  const residence = residenceQuery.data;
+  const diversion = diversionQuery.data;
+  const deviceStats = deviceQuery.data;
+  const performanceTrend = trendQuery.data;
 
   useEffect(() => {
     try {
       echarts.registerMap('hangzhou', hangzhouMapData);
+      setMapError(null);
       setMapLoaded(true);
     } catch (error) {
-      console.error('Error registering hangzhou geojson:', error);
+      setMapLoaded(false);
+      setMapError(error instanceof Error ? error : new Error('地图数据加载失败'));
     }
-  }, []);
+  }, [mapAttempt]);
 
   const topDistricts = useMemo(
     () => [...residence].sort((a, b) => b.value - a.value).slice(0, 5),
@@ -85,6 +99,18 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
     return () => clearInterval(timer);
   }, [mapLoaded, mode, topDistricts]);
 
+  const mapQuery = {
+    loading: sitesQuery.loading || residenceQuery.loading || dailyQuery.loading || (!mapLoaded && !mapError),
+    error: sitesQuery.error ?? residenceQuery.error ?? dailyQuery.error ?? mapError,
+    empty: !sitesQuery.loading && !residenceQuery.loading && sitesQuery.empty && residenceQuery.empty,
+    retry: () => {
+      sitesQuery.retry();
+      residenceQuery.retry();
+      dailyQuery.retry();
+      setMapAttempt((n) => n + 1);
+    },
+  };
+
   const getMapOptions = () => ({
     backgroundColor: 'transparent',
     tooltip: {
@@ -97,10 +123,10 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
       min: 0,
       max: maxResidence,
       seriesIndex: 0,
-      left: 24,
-      bottom: 190,
+      left: phone ? 8 : 24,
+      bottom: phone ? 12 : 190,
       itemWidth: 10,
-      itemHeight: 90,
+      itemHeight: phone ? 64 : 90,
       text: ['高', '低'],
       textStyle: { color: '#9ab6d6', fontSize: 10 },
       calculable: false,
@@ -115,8 +141,8 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
       {
         map: 'hangzhou',
         roam: false,
-        zoom: 1.15,
-        top: '104px',
+        zoom: phone ? 1.02 : 1.15,
+        top: phone ? '18px' : '104px',
         left: 'center',
         silent: true,
         zlevel: 0,
@@ -132,8 +158,8 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
       {
         map: 'hangzhou',
         roam: false,
-        zoom: 1.15,
-        top: '90px',
+        zoom: phone ? 1.02 : 1.15,
+        top: phone ? '8px' : '90px',
         left: 'center',
         zlevel: 1,
         label: { show: false },
@@ -153,11 +179,11 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
         type: 'map',
         map: 'hangzhou',
         roam: false,
-        zoom: 1.15,
-        top: '90px',
+        zoom: phone ? 1.02 : 1.15,
+        top: phone ? '8px' : '90px',
         left: 'center',
         zlevel: 1,
-        label: { show: true, color: '#d5e4f5', fontSize: 11.5, opacity: 0.92 },
+        label: { show: true, color: '#d5e4f5', fontSize: phone ? 10 : 11.5, opacity: 0.92 },
         itemStyle: { borderColor: 'rgba(155, 195, 235, 0.7)', borderWidth: 0.8 },
         emphasis: {
           label: { show: true, color: '#ffffff', fontSize: 12, fontWeight: 'bold' },
@@ -231,10 +257,11 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
   });
 
   return (
-    <div className="flex-1 flex flex-col h-full px-2">
+    <div className="center-panel flex-1 flex flex-col h-full px-2">
       {/* Map Section */}
-      <div className="flex-[8] min-h-0 relative">
-        <div className="absolute top-4 left-4 z-10 flex items-center space-x-2 bg-[rgba(12,35,68,0.82)] border border-[color:var(--gov-border)] px-4 py-2 rounded-sm">
+      <div className="map-stage flex-[8] min-h-0 relative">
+        <QueryState query={mapQuery}>
+        <div className="map-overlay absolute top-4 left-4 z-10 flex items-center space-x-2 bg-[rgba(12,35,68,0.82)] border border-[color:var(--gov-border)] px-4 py-2 rounded-sm max-w-[calc(100%-1rem)]">
           <div className="w-2 h-2 rounded-full bg-[var(--gov-gold)] animate-pulse" />
           <span className="text-[var(--gov-text-primary)] font-semibold tracking-[0.18em]">
             {mode === 'dispatch' ? '市域政务服务网点运行图' : '办事市民居住地分布图'}
@@ -243,9 +270,9 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
 
         {/* 右上角：调度=网点状态汇总 / 汇报=来访区县 TOP5 */}
         {mode === 'dispatch' ? (
-          <div className="absolute top-4 right-4 z-20 bg-[rgba(12,35,68,0.82)] border border-[color:var(--gov-border)] rounded-sm backdrop-blur-sm px-3 py-2">
+          <div className="map-overlay absolute top-4 right-4 z-20 bg-[rgba(12,35,68,0.82)] border border-[color:var(--gov-border)] rounded-sm backdrop-blur-sm px-3 py-2 max-w-full">
             <div className="text-xs font-semibold tracking-[0.2em] text-[var(--gov-text-primary)] mb-1.5">全市网点运行</div>
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               {(Object.keys(SITE_STATUS_META) as (keyof typeof SITE_STATUS_META)[]).map(k => (
                 <div key={k} className="flex items-center space-x-1">
                   <span className="w-2 h-2 rounded-full" style={{ backgroundColor: SITE_STATUS_META[k].color }} />
@@ -256,7 +283,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
             </div>
           </div>
         ) : (
-          <div className="absolute top-4 right-4 z-20 w-48 bg-[rgba(12,35,68,0.82)] border border-[color:var(--gov-border)] rounded-sm backdrop-blur-sm px-3 py-2">
+          <div className="map-overlay absolute top-4 right-4 z-20 w-48 max-w-full bg-[rgba(12,35,68,0.82)] border border-[color:var(--gov-border)] rounded-sm backdrop-blur-sm px-3 py-2">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold tracking-[0.2em] text-[var(--gov-text-primary)]">来访区县 TOP5</span>
               <span className="text-[9px] text-[var(--gov-text-muted)]">人次/日</span>
@@ -282,7 +309,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
         )}
 
         {/* 右下角 KPI 指标（避开地图主体） */}
-        <div className="absolute bottom-8 right-4 z-20 flex flex-col space-y-2">
+        <div className="kpi-stack absolute bottom-8 right-4 z-20 flex flex-col space-y-2">
           {[
             { label: '今日预约', value: dailyStats.totalAppointments },
             { label: '已完成', value: dailyStats.completed },
@@ -296,9 +323,10 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
           ))}
         </div>
 
-        <div className="w-full h-full pt-20 flex items-center justify-center">
+        <div className="map-canvas-wrap w-full h-full pt-20 flex items-center justify-center min-h-0">
           {mapLoaded ? (
-            <ReactECharts
+            <EChartsReactCore
+              echarts={echarts}
               ref={chartRef}
               option={getMapOptions()}
               onEvents={{
@@ -317,19 +345,17 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
               style={{ height: '100%', width: '100%' }}
               opts={{ renderer: 'canvas' }}
             />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-[var(--gov-text-secondary)]">
-              加载地图数据中...
-            </div>
-          )}
+          ) : null}
         </div>
+        </QueryState>
       </div>
 
       {/* Bottom Section */}
-      <div className="flex-[2] min-h-0 mt-4 flex flex-col relative">
+      <div className="bottom-stage flex-[2] min-h-0 mt-4 flex flex-col relative">
         {mode === 'dispatch' ? (
           <Card title="分流与设备运行" className="h-full border-t-[color:var(--gov-border-strong)]">
-            <div className="flex h-full items-stretch space-x-4">
+            <QueryState query={[diversionQuery, deviceQuery]}>
+            <div className="split-row flex h-full items-stretch space-x-4">
               {/* 分流指标 */}
               <div className="grid grid-cols-3 gap-2 flex-1">
                 {[
@@ -366,10 +392,12 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
                 </div>
               </div>
             </div>
+            </QueryState>
           </Card>
         ) : (
           <Card title="运行成效趋势（近 6 个月）" className="h-full border-t-[color:var(--gov-border-strong)]">
-            <div className="flex h-full items-stretch space-x-3">
+            <QueryState query={trendQuery}>
+            <div className="split-row flex h-full items-stretch space-x-3">
               {/* 关键成效 KPI */}
               <div className="grid grid-rows-3 gap-1.5 w-56 shrink-0">
                 {(trendFirst && trendLast
@@ -390,21 +418,33 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
                 ))}
               </div>
               {/* 趋势图 */}
-              <div className="flex-1 relative min-w-0">
+              <div className="chart-frame flex-1 relative min-w-0">
                 <ChartLegend items={[{ label: '平均等待(分钟)', color: '#55a6e8' }, { label: '网办率(%)', color: '#f0b95a' }]} />
-                <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={performanceTrend} margin={{ top: 14, right: 0, left: -24, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--gov-grid)" />
-                    <XAxis dataKey="month" stroke="var(--gov-text-muted)" fontSize={9} tickLine={false} axisLine={false} />
-                    <YAxis yAxisId="left" stroke="var(--gov-text-muted)" fontSize={9} tickLine={false} axisLine={false} />
-                    <YAxis yAxisId="right" orientation="right" domain={[50, 75]} hide />
-                    <Tooltip contentStyle={{ backgroundColor: 'rgba(12,35,68,0.94)', borderColor: '#7fb3e8', color: '#f2f7fd' }} />
-                    <Bar yAxisId="left" dataKey="平均等待" barSize={10} fill="#55a6e8" radius={[2, 2, 0, 0]} />
-                    <Line yAxisId="right" type="monotone" dataKey="网办率" stroke="#f0b95a" strokeWidth={2} dot={{ r: 3, fill: '#f0b95a', strokeWidth: 0 }} />
-                  </ComposedChart>
-                </ResponsiveContainer>
+                <EChart option={{
+                  grid: chartGrid(0),
+                  tooltip: axisTooltip,
+                  xAxis: categoryAxis(performanceTrend.map(d => d.month)),
+                  yAxis: [
+                    valueAxis(),
+                    valueAxis({ min: 50, max: 75, axisLabel: { show: false }, splitLine: { show: false } }),
+                  ],
+                  series: [
+                    barSeries('平均等待', performanceTrend.map(d => d['平均等待']), '#55a6e8', 10),
+                    {
+                      name: '网办率',
+                      type: 'line',
+                      yAxisIndex: 1,
+                      data: performanceTrend.map(d => d['网办率']),
+                      symbol: 'circle',
+                      symbolSize: 6,
+                      lineStyle: { width: 2, color: '#f0b95a' },
+                      itemStyle: { color: '#f0b95a' },
+                    },
+                  ],
+                }} />
               </div>
             </div>
+            </QueryState>
           </Card>
         )}
       </div>
@@ -413,11 +453,15 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
       {selectedSite && (() => {
         const site = sites.find(s => s.name === selectedSite);
         const detail = siteDetails[selectedSite];
-        if (!site || !detail) return null;
-        const meta = SITE_STATUS_META[site.status];
-        const maxQ = Math.max(...detail.queues.map(q => q.waiting), 1);
+        const meta = site ? SITE_STATUS_META[site.status] : null;
+        const maxQ = detail ? Math.max(...detail.queues.map(q => q.waiting), 1) : 1;
         return (
-          <Modal title={site.name} subtitle="网点运行详情 · 实时" onClose={() => setSelectedSite(null)} width={640}>
+          <Modal title={site?.name ?? selectedSite} subtitle="网点运行详情 · 实时" onClose={() => setSelectedSite(null)} width={640}>
+            <QueryState query={siteDetailsQuery}>
+            {!site || !detail || !meta ? (
+              <div className="py-6 text-center text-xs text-[var(--gov-text-muted)]">暂无该网点详情</div>
+            ) : (
+            <>
             <div className="flex items-center justify-between mb-3">
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm" style={{ backgroundColor: meta.color, color: '#0a1f39' }}>
                 {meta.label}
@@ -425,7 +469,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
               <span className="text-[10px] text-[var(--gov-text-muted)]">值班电话 {detail.dutyPhone}</span>
             </div>
 
-            <div className="grid grid-cols-4 gap-2 mb-4">
+            <div className="stat-grid-4 grid grid-cols-4 gap-2 mb-4">
               {[
                 { label: '当前等待', value: `${site.waiting} 人`, warn: site.status === 'alert' },
                 { label: '开放窗口', value: `${detail.openWindows}/${detail.totalWindows}` },
@@ -439,7 +483,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
               ))}
             </div>
 
-            <div className="flex space-x-4">
+            <div className="modal-split flex space-x-4">
               <div className="flex-1">
                 <div className="text-[10px] text-[var(--gov-text-secondary)] tracking-[0.15em] mb-2">分业务队列</div>
                 <div className="space-y-1.5">
@@ -457,26 +501,24 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
                   ))}
                 </div>
               </div>
-              <div className="flex-1 h-[130px]">
+              <div className="chart-frame flex-1 min-w-0">
                 <div className="text-[10px] text-[var(--gov-text-secondary)] tracking-[0.15em] mb-1">今日等待人数走势</div>
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={detail.hourly} margin={{ top: 4, right: 4, left: -28, bottom: 18 }}>
-                    <defs>
-                      <linearGradient id="siteHourly" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#55a6e8" stopOpacity={0.4} />
-                        <stop offset="95%" stopColor="#55a6e8" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--gov-grid)" />
-                    <XAxis dataKey="hour" stroke="var(--gov-text-muted)" fontSize={9} tickLine={false} axisLine={false} />
-                    <YAxis stroke="var(--gov-text-muted)" fontSize={9} tickLine={false} axisLine={false} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: 'rgba(12,35,68,0.94)', borderColor: '#7fb3e8', color: '#f2f7fd' }}
-                      formatter={(v: number | undefined) => [`${v ?? 0} 人`, '等待']}
-                    />
-                    <Area type="monotone" dataKey="waiting" stroke="#55a6e8" strokeWidth={2} fill="url(#siteHourly)" />
-                  </AreaChart>
-                </ResponsiveContainer>
+                <EChart
+                  className="chart-plot chart-plot-fixed"
+                  option={{
+                    grid: { ...chartGrid(phone ? 35 : 0), top: 8 },
+                    tooltip: {
+                      ...axisTooltip,
+                      formatter: (params: { value?: number } | { value?: number }[]) => {
+                        const item = Array.isArray(params) ? params[0] : params;
+                        return `等待：${item?.value ?? 0} 人`;
+                      },
+                    },
+                    xAxis: categoryAxis(detail.hourly.map(d => d.hour), phone ? 35 : 0),
+                    yAxis: valueAxis(),
+                    series: [areaSeries('等待', detail.hourly.map(d => d.waiting), '#55a6e8')],
+                  }}
+                />
               </div>
             </div>
 
@@ -487,6 +529,9 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
                   : '该网点运行繁忙，建议关注队列变化趋势'}
               </div>
             )}
+            </>
+            )}
+            </QueryState>
           </Modal>
         );
       })()}
