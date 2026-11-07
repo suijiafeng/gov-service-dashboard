@@ -12,7 +12,7 @@ export function Card({ title, children, className = '' }: CardProps) {
 {/* Header */}
       <div className="flex items-center px-4 py-2 bg-gradient-to-r from-[rgba(46,123,209,0.26)] via-[rgba(46,123,209,0.1)] to-transparent relative border-l-2 border-[color:var(--gov-gold)]">
         <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-[var(--gov-border-strong)] via-[var(--gov-border)] to-transparent" />
-        <h2 className="text-[var(--gov-text-primary)] font-semibold tracking-[0.12em] md:tracking-[0.28em] text-sm md:text-base">{title}</h2>
+        <h2 className="text-[var(--gov-text-primary)] font-semibold tracking-[0.12em] min-[1101px]:tracking-[0.28em] text-sm min-[1101px]:text-base">{title}</h2>
       </div>
       
       {/* Content */}

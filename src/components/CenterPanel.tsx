@@ -5,7 +5,7 @@ import HZJson from '../api/mock/hangzhou.json';
 import { Card } from './Card';
 import { Modal } from './Modal';
 import { ChartLegend } from './LeftPanel';
-import { EChart, areaSeries, axisTooltip, barSeries, categoryAxis, chartGrid, valueAxis } from './EChart';
+import { EChart, areaSeries, axisTooltip, axisValueTooltip, barSeries, categoryAxis, chartGrid, valueAxis } from './EChart';
 import { QueryState } from './QueryState';
 import {
   useDailyServiceStats,
@@ -184,6 +184,8 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
         left: 'center',
         zlevel: 1,
         label: { show: true, color: '#d5e4f5', fontSize: phone ? 10 : 11.5, opacity: 0.92 },
+        // 窄屏区县挤在一起时只留不重叠的地名，避免东北部叠成一团
+        ...(phone ? { labelLayout: { hideOverlap: true } } : {}),
         itemStyle: { borderColor: 'rgba(155, 195, 235, 0.7)', borderWidth: 0.8 },
         emphasis: {
           label: { show: true, color: '#ffffff', fontSize: 12, fontWeight: 'bold' },
@@ -226,7 +228,8 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
         zlevel: 3,
         rippleEffect: { brushType: 'stroke', scale: mode === 'report' ? 4 : 3 },
         label: {
-          show: true,
+          // 网点名去掉“分中心”后与区县名相同，窄屏上会画出第二套地名
+          show: !phone,
           position: 'right',
           formatter: (p: { name: string }) => p.name.replace(/（主厅）|分中心|便民中心/g, ''),
           color: '#f7fbff',
@@ -507,13 +510,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
                   className="chart-plot chart-plot-fixed"
                   option={{
                     grid: { ...chartGrid(phone ? 35 : 0), top: 8 },
-                    tooltip: {
-                      ...axisTooltip,
-                      formatter: (params: { value?: number } | { value?: number }[]) => {
-                        const item = Array.isArray(params) ? params[0] : params;
-                        return `等待：${item?.value ?? 0} 人`;
-                      },
-                    },
+                    tooltip: axisValueTooltip((hour, value) => `${hour} 等待：${value} 人`),
                     xAxis: categoryAxis(detail.hourly.map(d => d.hour), phone ? 35 : 0),
                     yAxis: valueAxis(),
                     series: [areaSeries('等待', detail.hourly.map(d => d.waiting), '#55a6e8')],

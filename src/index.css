@@ -96,8 +96,8 @@ html, body {
   box-shadow: 0 8px 18px rgba(5, 15, 29, 0.28);
 }
 
-/* 手机宽度：关掉大屏缩放后，三栏改为纵向堆叠，图表给固定高度 */
-@media (max-width: 767px) {
+/* 1100px 以下：关掉大屏缩放后，三栏改为纵向堆叠，图表给固定高度 */
+@media (max-width: 1100px) {
   html, body {
     height: auto;
     min-height: 100%;

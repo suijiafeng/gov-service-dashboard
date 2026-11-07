@@ -86,13 +86,13 @@ export function Header({ mode, onToggleMode }: HeaderProps) {
   );
 
   return (
-    <header className="relative flex flex-col gap-2 px-3 pt-3 pb-2 md:flex-row md:items-start md:justify-between md:px-6 md:pt-4 md:h-24 md:gap-0">
+    <header className="relative flex flex-col gap-2 px-3 pt-3 pb-2 min-[1101px]:flex-row min-[1101px]:items-start min-[1101px]:justify-between min-[1101px]:px-6 min-[1101px]:pt-4 min-[1101px]:h-24 min-[1101px]:gap-0">
       {/* Top Border Line */}
       <div className="absolute top-0 left-0 w-full h-1 bg-[#041a38]" />
 
       {/* Decorative center piece background */}
       <div
-        className="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 w-3/5 h-[80px] border-b-2 border-x-2 border-[#2563a8] bg-[#041a38] z-0"
+        className="hidden min-[1101px]:block absolute top-0 left-1/2 -translate-x-1/2 w-3/5 h-[80px] border-b-2 border-x-2 border-[#2563a8] bg-[#041a38] z-0"
         style={{
           clipPath: 'polygon(0 0, 100% 0, 95% 100%, 5% 100%)',
           boxShadow: 'inset 0 -20px 20px -20px rgba(79, 195, 247, 0.5)'
@@ -100,7 +100,7 @@ export function Header({ mode, onToggleMode }: HeaderProps) {
       />
 
       {/* Left Time */}
-      <div className="flex items-center gap-x-2 text-[#64b5f6] text-xs w-full md:text-sm md:w-1/4 relative z-10 md:pt-2 min-w-0">
+      <div className="flex items-center gap-x-2 text-[#64b5f6] text-xs w-full min-[1101px]:text-sm min-[1101px]:w-1/4 relative z-10 min-[1101px]:pt-2 min-w-0">
         <Clock className="w-4 h-4 shrink-0" />
         <span className="font-mono whitespace-nowrap">{formatClock(time)}</span>
         <span className="whitespace-nowrap">{WEEKDAYS[time.getDay()]}</span>
@@ -108,11 +108,11 @@ export function Header({ mode, onToggleMode }: HeaderProps) {
 
       {/* Center Title：双击切换全屏 */}
       <div
-        className="group flex flex-col items-center justify-center relative w-full md:w-1/2 z-10 md:pt-1 cursor-pointer select-none min-w-0"
+        className="group flex flex-col items-center justify-center relative w-full min-[1101px]:w-1/2 z-10 min-[1101px]:pt-1 cursor-pointer select-none min-w-0"
         onDoubleClick={toggleFullscreen}
         title={isFullscreen ? '双击退出全屏' : '双击进入全屏'}
       >
-        <h1 className="text-xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-[#e0f7fa] to-[#4fc3f7] tracking-[0.06em] md:tracking-[0.2em] drop-shadow-[0_0_15px_rgba(79,195,247,0.8)] text-center leading-tight">
+        <h1 className="text-xl min-[1101px]:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-[#e0f7fa] to-[#4fc3f7] tracking-[0.06em] min-[1101px]:tracking-[0.2em] drop-shadow-[0_0_15px_rgba(79,195,247,0.8)] text-center leading-tight">
           {mode === 'dispatch' ? '政务服务大厅运营指挥平台' : '政务服务大厅综合监控平台'}
         </h1>
         <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] text-[#81d4fa] bg-[rgba(12,35,68,0.92)] border border-[#2563a8] px-2.5 py-0.5 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20">
@@ -120,13 +120,13 @@ export function Header({ mode, onToggleMode }: HeaderProps) {
         </span>
 
         <div className="flex items-center justify-center gap-2 mt-1 w-full min-w-0 px-1">
-          <div className="hidden md:block relative h-px w-24 overflow-hidden bg-[#1a4f8c]">
+          <div className="hidden min-[1101px]:block relative h-px w-24 overflow-hidden bg-[#1a4f8c]">
             <div className="absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-[#4fc3f7] to-transparent animate-beam-left" />
           </div>
-          <div className="min-w-0 text-[#4fc3f7] text-[8px] md:text-[10px] tracking-[0.04em] md:tracking-[0.3em] font-medium opacity-80 text-center leading-snug">
+          <div className="min-w-0 text-[#4fc3f7] text-[8px] min-[1101px]:text-[10px] tracking-[0.04em] min-[1101px]:tracking-[0.3em] font-medium opacity-80 text-center leading-snug">
             GOVERNMENT SERVICE HALL OPERATION CENTER
           </div>
-          <div className="hidden md:block relative h-px w-24 overflow-hidden bg-[#1a4f8c]">
+          <div className="hidden min-[1101px]:block relative h-px w-24 overflow-hidden bg-[#1a4f8c]">
             <div className="absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-[#4fc3f7] to-transparent animate-beam-right" />
           </div>
         </div>
@@ -134,10 +134,10 @@ export function Header({ mode, onToggleMode }: HeaderProps) {
       </div>
 
       {/* Right: mode switch + ticker */}
-      <div className="flex items-center w-full md:w-1/4 justify-end gap-2 relative z-10 md:pt-2 min-w-0">
+      <div className="flex items-center w-full min-[1101px]:w-1/4 justify-end gap-2 relative z-10 min-[1101px]:pt-2 min-w-0">
         {modeButton}
 
-        <div className={`flex items-center border-l-2 pl-2 min-w-0 flex-1 md:flex-none md:w-[240px] ${mode === 'dispatch' && hasRedAlert ? 'border-[color:var(--gov-danger)]' : 'border-[#4fc3f7]'}`}>
+        <div className={`flex items-center border-l-2 pl-2 min-w-0 flex-1 min-[1101px]:flex-none min-[1101px]:w-[240px] ${mode === 'dispatch' && hasRedAlert ? 'border-[color:var(--gov-danger)]' : 'border-[#4fc3f7]'}`}>
           {showAlertIcon ? (
             <AlertTriangle className={`w-3.5 h-3.5 shrink-0 mr-2 ${hasRedAlert ? 'text-[var(--gov-danger)] animate-pulse' : 'text-[var(--gov-gold)]'}`} />
           ) : (
@@ -145,7 +145,7 @@ export function Header({ mode, onToggleMode }: HeaderProps) {
           )}
           <div className="overflow-hidden whitespace-nowrap flex-1 min-w-0">
             {showRetry ? (
-              <div className={`flex items-center gap-2 text-xs md:text-sm ${tickerClass}`}>
+              <div className={`flex items-center gap-2 text-xs min-[1101px]:text-sm ${tickerClass}`}>
                 <span className="truncate">{tickerText}</span>
                 <button
                   type="button"
@@ -156,12 +156,12 @@ export function Header({ mode, onToggleMode }: HeaderProps) {
                 </button>
               </div>
             ) : tickerText.length > 18 ? (
-              <div className={`animate-marquee flex w-max text-xs md:text-sm ${tickerClass}`}>
+              <div className={`animate-marquee flex w-max text-xs min-[1101px]:text-sm ${tickerClass}`}>
                 <span className="pr-12">{tickerText}</span>
                 <span className="pr-12">{tickerText}</span>
               </div>
             ) : (
-              <div className={`truncate text-xs md:text-sm ${tickerClass}`}>{tickerText}</div>
+              <div className={`truncate text-xs min-[1101px]:text-sm ${tickerClass}`}>{tickerText}</div>
             )}
           </div>
         </div>

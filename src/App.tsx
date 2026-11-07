@@ -16,7 +16,8 @@ export function App() {
   const [mode, setMode] = useState<DashboardMode>('dispatch');
   const phone = usePhoneLayout();
 
-  // 大屏用 autofit 等比缩放；手机宽度关掉缩放，改走流式布局，否则 1920 稿会被缩成不可读的小字
+  // 1366 / 1920 用 autofit 等比缩放。更窄的平板和手机关掉缩放，改走流式布局，
+  // 否则 1920 稿在 800 宽上会缩成大约 5px 的字。
   useEffect(() => {
     if (phone) return;
     autofit.init({

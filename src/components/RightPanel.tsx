@@ -1,7 +1,7 @@
 import { Card } from './Card';
 import { ChartLegend } from './LeftPanel';
 import { QueryState } from './QueryState';
-import { EChart, axisTooltip, barSeries, categoryAxis, chartGrid, valueAxis } from './EChart';
+import { EChart, axisTooltip, axisValueTooltip, barSeries, categoryAxis, chartGrid, valueAxis } from './EChart';
 import { useServiceRecords, useWindowUsage, useStaffData, useAppointmentSlots } from '../hooks/useData';
 import { useChartDataRefresh, useListCarousel } from '../hooks/useCarousel';
 import { usePhoneLayout } from '../hooks/usePhoneLayout';
@@ -101,13 +101,7 @@ export function RightPanel() {
         <div className="chart-frame h-full">
           <EChart option={{
             grid: chartGrid(rotate),
-            tooltip: {
-              ...axisTooltip,
-              formatter: (params: { value?: number } | { value?: number }[]) => {
-                const item = Array.isArray(params) ? params[0] : params;
-                return `预约量：${item?.value ?? 0} 人`;
-              },
-            },
+            tooltip: axisValueTooltip((hour, value) => `${hour} 预约量：${value} 人`),
             xAxis: categoryAxis(slotQuery.data.map(d => d.time), rotate),
             yAxis: valueAxis(),
             series: [{

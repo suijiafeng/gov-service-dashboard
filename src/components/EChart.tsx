@@ -9,6 +9,26 @@ export const axisTooltip = {
   textStyle: { color: '#f2f7fd', fontSize: 12 },
 };
 
+type AxisTipParam = {
+  axisValue?: string | number;
+  axisValueLabel?: string | number;
+  value?: number | number[];
+};
+
+/** 自定义文案时仍带上类目（时刻、窗口等），避免只剩一个数字。 */
+export function axisValueTooltip(format: (axisLabel: string, value: number) => string) {
+  return {
+    ...axisTooltip,
+    formatter: (params: AxisTipParam | AxisTipParam[]) => {
+      const item = Array.isArray(params) ? params[0] : params;
+      const label = String(item?.axisValueLabel ?? item?.axisValue ?? '');
+      const raw = item?.value;
+      const value = Array.isArray(raw) ? Number(raw[raw.length - 1]) : Number(raw ?? 0);
+      return format(label, Number.isFinite(value) ? value : 0);
+    },
+  };
+}
+
 export function chartGrid(rotate: number) {
   return {
     top: 28,
