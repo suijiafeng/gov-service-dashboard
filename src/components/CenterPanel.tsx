@@ -16,7 +16,7 @@ import {
   usePerformanceTrend,
   useSiteDetails,
 } from '../hooks/useData';
-import { usePhoneLayout } from '../hooks/usePhoneLayout';
+import { useNarrowChart, usePhoneLayout } from '../hooks/usePhoneLayout';
 import type { DashboardMode } from '../App';
 
 const hangzhouMapData = HZJson as Parameters<typeof echarts.registerMap>[1];
@@ -36,6 +36,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
   const [selectedSite, setSelectedSite] = useState<string | null>(null);
   const chartRef = useRef<EChartsReactCore>(null);
   const phone = usePhoneLayout();
+  const narrow = useNarrowChart();
   const siteDetailsQuery = useSiteDetails();
   const dailyQuery = useDailyServiceStats();
   const sitesQuery = useSiteData();
@@ -429,7 +430,14 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
                   xAxis: categoryAxis(performanceTrend.map(d => d.month)),
                   yAxis: [
                     valueAxis(),
-                    valueAxis({ min: 50, max: 75, axisLabel: { show: false }, splitLine: { show: false } }),
+                    valueAxis({
+                      min: 50,
+                      max: 75,
+                      interval: 25,
+                      position: 'right',
+                      axisLabel: { color: '#f0b95a', fontSize: 10 },
+                      splitLine: { show: false },
+                    }),
                   ],
                   series: [
                     barSeries('平均等待', performanceTrend.map(d => d['平均等待']), '#55a6e8', 10),
@@ -509,9 +517,9 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
                 <EChart
                   className="chart-plot chart-plot-fixed"
                   option={{
-                    grid: { ...chartGrid(phone ? 35 : 0), top: 8 },
+                    grid: { ...chartGrid(narrow ? 35 : 0), top: 8 },
                     tooltip: axisValueTooltip((hour, value) => `${hour} 等待：${value} 人`),
-                    xAxis: categoryAxis(detail.hourly.map(d => d.hour), phone ? 35 : 0),
+                    xAxis: categoryAxis(detail.hourly.map(d => d.hour), narrow ? 35 : 0),
                     yAxis: valueAxis(),
                     series: [areaSeries('等待', detail.hourly.map(d => d.waiting), '#55a6e8')],
                   }}

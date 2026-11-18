@@ -34,7 +34,7 @@ export function chartGrid(rotate: number) {
     top: 28,
     right: 8,
     left: 4,
-    bottom: rotate ? 4 : 0,
+    bottom: rotate ? 16 : 2,
     containLabel: true,
   };
 }

@@ -4,7 +4,7 @@ import { QueryState } from './QueryState';
 import { EChart, axisTooltip, axisValueTooltip, barSeries, categoryAxis, chartGrid, valueAxis } from './EChart';
 import { useServiceRecords, useWindowUsage, useStaffData, useAppointmentSlots } from '../hooks/useData';
 import { useChartDataRefresh, useListCarousel } from '../hooks/useCarousel';
-import { usePhoneLayout } from '../hooks/usePhoneLayout';
+import { useNarrowChart } from '../hooks/usePhoneLayout';
 import { echarts } from '../lib/echarts';
 
 
@@ -13,12 +13,12 @@ export function RightPanel() {
   const windowQuery = useWindowUsage();
   const staffQuery = useStaffData();
   const slotQuery = useAppointmentSlots();
-  const phone = usePhoneLayout();
+  const narrow = useNarrowChart();
 
   const animatedWindowData = useChartDataRefresh(windowQuery.data, 4500, 0.1);
   const animatedStaffData = useChartDataRefresh(staffQuery.data, 5000, 0.12);
   const { visibleItems: visibleRecords } = useListCarousel(recordsQuery.data, 4, 2500);
-  const rotate = phone ? 40 : 0;
+  const rotate = narrow ? 40 : 0;
 
   return (
     <div className="side-panel flex flex-col space-y-4 w-[28%] h-full pl-2">

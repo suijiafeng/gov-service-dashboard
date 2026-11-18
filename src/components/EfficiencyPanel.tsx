@@ -5,7 +5,7 @@ import { ChartLegend } from './LeftPanel';
 import { QueryState } from './QueryState';
 import { EChart, axisTooltip, barSeries, categoryAxis, chartGrid, valueAxis } from './EChart';
 import { useEfficiencyStats, useOverdueItems, useSatisfactionStats, useStaffPerformance } from '../hooks/useData';
-import { usePhoneLayout } from '../hooks/usePhoneLayout';
+import { useNarrowChart } from '../hooks/usePhoneLayout';
 
 function KpiTile({ label, value, unit, warn }: { label: string; value: string; unit?: string; warn?: boolean }) {
   return (
@@ -24,7 +24,7 @@ export function EfficiencyPanel() {
   const overdueQuery = useOverdueItems();
   const satisfactionQuery = useSatisfactionStats();
   const staffQuery = useStaffPerformance();
-  const phone = usePhoneLayout();
+  const narrow = useNarrowChart();
   const efficiency = efficiencyQuery.data;
   const overdue = overdueQuery.data;
   const satisfaction = satisfactionQuery.data;
@@ -141,12 +141,19 @@ export function EfficiencyPanel() {
         <div className="chart-frame h-full relative">
           <ChartLegend items={[{ label: '接待数', color: '#55a6e8' }, { label: '满意度%', color: '#f0b95a' }]} />
           <EChart option={{
-            grid: chartGrid(phone ? 40 : 0),
+            grid: { ...chartGrid(narrow ? 40 : 0), right: 8 },
             tooltip: axisTooltip,
-            xAxis: categoryAxis(staff.map(d => d.name), phone ? 40 : 0),
+            xAxis: categoryAxis(staff.map(d => d.name), narrow ? 40 : 0),
             yAxis: [
               valueAxis(),
-              valueAxis({ min: 95, max: 100, axisLabel: { show: false }, splitLine: { show: false } }),
+              valueAxis({
+                min: 95,
+                max: 100,
+                interval: 5,
+                position: 'right',
+                axisLabel: { color: '#f0b95a', fontSize: 10 },
+                splitLine: { show: false },
+              }),
             ],
             series: [
               barSeries('接待数', staff.map(d => d['接待数']), '#55a6e8', 8),

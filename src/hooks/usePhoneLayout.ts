@@ -4,18 +4,29 @@ import { useEffect, useState } from 'react';
 // 1366 和 1920 仍走大屏缩放。
 export const PHONE_MEDIA_QUERY = '(max-width: 1100px)';
 
-export function usePhoneLayout() {
-  const [phone, setPhone] = useState(() =>
-    typeof window !== 'undefined' ? window.matchMedia(PHONE_MEDIA_QUERY).matches : false,
+// 类目名只有在绘图区很窄时才倾斜。800 宽的堆叠图仍然放得下横排文字。
+export const NARROW_CHART_QUERY = '(max-width: 560px)';
+
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia(query).matches : false,
   );
 
   useEffect(() => {
-    const media = window.matchMedia(PHONE_MEDIA_QUERY);
-    const update = () => setPhone(media.matches);
+    const media = window.matchMedia(query);
+    const update = () => setMatches(media.matches);
     update();
     media.addEventListener('change', update);
     return () => media.removeEventListener('change', update);
-  }, []);
+  }, [query]);
 
-  return phone;
+  return matches;
+}
+
+export function usePhoneLayout() {
+  return useMediaQuery(PHONE_MEDIA_QUERY);
+}
+
+export function useNarrowChart() {
+  return useMediaQuery(NARROW_CHART_QUERY);
 }

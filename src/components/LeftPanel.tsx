@@ -3,7 +3,7 @@ import { QueryState } from './QueryState';
 import { EChart, areaSeries, axisTooltip, barSeries, categoryAxis, chartGrid, valueAxis } from './EChart';
 import { useServiceItemRanking, useAgeDistribution, useWeeklyFlow, useVisitStatistics, useEducationStats } from '../hooks/useData';
 import { useCountUp, useChartDataRefresh } from '../hooks/useCarousel';
-import { usePhoneLayout } from '../hooks/usePhoneLayout';
+import { useNarrowChart } from '../hooks/usePhoneLayout';
 
 export function ChartLegend({ items }: { items: { label: string; color: string }[] }) {
   return (
@@ -38,7 +38,7 @@ export function LeftPanel() {
   const flowQuery = useWeeklyFlow();
   const visitQuery = useVisitStatistics();
   const educationQuery = useEducationStats();
-  const phone = usePhoneLayout();
+  const narrow = useNarrowChart();
   const itemRanking = itemRankingQuery.data;
   const ageData = ageQuery.data;
   const flowData = flowQuery.data;
@@ -115,9 +115,9 @@ export function LeftPanel() {
         <div className="chart-frame h-full relative">
           <ChartLegend items={[{ label: '现场办理', color: '#55a6e8' }, { label: '网上办理', color: '#f0b95a' }]} />
           <EChart option={{
-            grid: chartGrid(phone ? 40 : 0),
+            grid: chartGrid(narrow ? 40 : 0),
             tooltip: axisTooltip,
-            xAxis: categoryAxis(animatedFlowData.map(d => String(d.name)), phone ? 40 : 0),
+            xAxis: categoryAxis(animatedFlowData.map(d => String(d.name)), narrow ? 40 : 0),
             yAxis: valueAxis(),
             series: [
               areaSeries('现场办理', animatedFlowData.map(d => Number(d['现场办理'])), '#55a6e8'),
