@@ -7,7 +7,7 @@ import { RightPanel } from './components/RightPanel';
 import { DispatchPanel } from './components/DispatchPanel';
 import { EfficiencyPanel } from './components/EfficiencyPanel';
 import { usePhoneLayout } from './hooks/usePhoneLayout';
-import bgImage from './assets/bg.jpg';
+import { CityBackdrop } from './components/CityBackdrop';
 
 // 调度模式：值班长日常运营指挥；汇报模式：领导视察 / 上级检查展示
 export type DashboardMode = 'dispatch' | 'report';
@@ -34,17 +34,11 @@ export function App() {
 
   return (
     <div
-      className="dashboard text-slate-200 overflow-hidden font-sans relative"
-      style={{
-        width: '100%',
-        height: '100%',
-        backgroundImage: `url(${bgImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
+      className="dashboard text-slate-200 overflow-hidden font-sans relative bg-[#07182f]"
+      style={{ width: '100%', height: '100%' }}
     >
-      {/* Overlay：提亮基调的深蓝底 + 顶部青色氛围光 */}
+      <CityBackdrop />
+      {/* 深蓝遮罩压住路网，避免和地图、文字抢对比 */}
       <div className="absolute inset-0 bg-[#06162f]/75 pointer-events-none z-0" />
       <div
         className="absolute inset-0 pointer-events-none z-0"

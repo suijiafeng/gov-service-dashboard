@@ -200,8 +200,8 @@ npm run preview     # 默认端口 4173，路径同样带 base
 │   │   └── mock/
 │   │       ├── data.ts         # 演示数据
 │   │       └── hangzhou.json   # 中栏地图
-│   ├── assets/bg.jpg           # 背景
 │   ├── components/
+│   │   ├── CityBackdrop.tsx    # 城市路网背景
 │   │   ├── Header.tsx          # 时钟、模式切换、告警或公告
 │   │   ├── DispatchPanel.tsx   # 调度左栏
 │   │   ├── EfficiencyPanel.tsx # 调度右栏
@@ -247,7 +247,7 @@ npm run preview     # 默认端口 4173，路径同样带 base
 - 设备列表长度为 0 时，在线率走「没有设备则 100%」的分支，空数据截图里因此会看到 100% 和「全部设备运行正常」。
 - 图表波动是前端定时改数字。它不会回到 Mock 原值，也不会和其他面板同步。
 - `useDataRefresh` 和 `useHighlightCarousel` 写在 `useCarousel.ts` 里，当前组件没有使用。
-- `src/assets/bg.jpeg` 没有被引用，页面用的是压缩后的 `bg.jpg`。
+- 背景是 `CityBackdrop` 里的城市路网线稿，不再使用地球图片。
 
 ## 说明
 
