@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Clock, Volume2, AlertTriangle, MonitorCog, Presentation } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { AlertTriangle, MonitorCog, Presentation } from 'lucide-react';
 import { useAnnouncement } from '../hooks/useData';
 import { useAlerts } from './DispatchPanel';
 import type { DashboardMode } from '../App';
@@ -10,6 +10,37 @@ interface HeaderProps {
 }
 
 const WEEKDAYS = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+
+function TickerLine({ text, className }: { text: string; className: string }) {
+  const outerRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLSpanElement>(null);
+  const [overflows, setOverflows] = useState(false);
+
+  useEffect(() => {
+    const outer = outerRef.current;
+    const measure = measureRef.current;
+    if (!outer || !measure) return;
+    const update = () => setOverflows(measure.scrollWidth > outer.clientWidth + 1);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(outer);
+    return () => observer.disconnect();
+  }, [text]);
+
+  return (
+    <div ref={outerRef} className="relative min-w-0 flex-1 overflow-hidden whitespace-nowrap">
+      <span ref={measureRef} className={`invisible absolute text-[13px] ${className}`}>{text}</span>
+      {overflows ? (
+        <div className={`animate-marquee flex w-max text-[13px] ${className}`}>
+          <span className="pr-16">{text}</span>
+          <span className="pr-16">{text}</span>
+        </div>
+      ) : (
+        <span className={`text-[13px] ${className}`}>{text}</span>
+      )}
+    </div>
+  );
+}
 
 function formatClock(date: Date) {
   const pad = (value: number) => String(value).padStart(2, '0');
@@ -44,7 +75,7 @@ export function Header({ mode, onToggleMode }: HeaderProps) {
 
   const hasRedAlert = alertsState.alerts.some(a => a.level === 'red');
   let tickerText = announcement.data;
-  let tickerClass = 'text-[#81d4fa]';
+  let tickerClass = 'text-[var(--gov-text-secondary)]';
   let showAlertIcon = false;
   let showRetry = false;
   let retry = announcement.retry;
@@ -53,118 +84,82 @@ export function Header({ mode, onToggleMode }: HeaderProps) {
     showAlertIcon = true;
     retry = alertsState.retry;
     if (alertsState.loading) {
-      tickerText = '告警数据加载中…';
+      tickerText = '告警数据加载中';
     } else if (alertsState.error) {
       tickerText = '告警数据加载失败';
-      tickerClass = 'text-[#e8a19a]';
+      tickerClass = 'text-[var(--gov-danger)]';
       showRetry = true;
     } else if (alertsState.alerts.length > 0) {
-      tickerText = alertsState.alerts.map(a => `【${a.source}】${a.message}`).join('　　');
-      tickerClass = hasRedAlert ? 'text-[#e8a19a]' : 'text-[#81d4fa]';
+      tickerText = alertsState.alerts.map(a => `【${a.source}】${a.message}`).join('    ');
+      tickerClass = hasRedAlert ? 'text-[var(--gov-danger)]' : 'text-[var(--gov-warning)]';
     } else {
       tickerText = '当前无待处理预警，大厅运行平稳';
     }
   } else if (announcement.loading) {
-    tickerText = '公告加载中…';
+    tickerText = '公告加载中';
   } else if (announcement.error) {
     tickerText = '公告加载失败';
-    tickerClass = 'text-[#e8a19a]';
+    tickerClass = 'text-[var(--gov-danger)]';
     showRetry = true;
   } else if (announcement.empty) {
     tickerText = '暂无公告';
   }
 
-  const modeButton = (
-    <button
-      onClick={onToggleMode}
-      className="flex items-center space-x-1.5 shrink-0 px-2.5 py-1 border border-[#2563a8] bg-[rgba(12,35,68,0.85)] rounded-sm text-xs text-[#81d4fa] hover:border-[#4fc3f7] hover:text-white transition-colors"
-      title="切换调度 / 汇报模式"
-    >
-      {mode === 'dispatch' ? <Presentation className="w-3.5 h-3.5" /> : <MonitorCog className="w-3.5 h-3.5" />}
-      <span>{mode === 'dispatch' ? '汇报模式' : '调度模式'}</span>
-    </button>
-  );
-
   return (
-    <header className="relative flex flex-col gap-2 px-3 pt-3 pb-2 min-[1101px]:flex-row min-[1101px]:items-start min-[1101px]:justify-between min-[1101px]:px-6 min-[1101px]:pt-4 min-[1101px]:h-24 min-[1101px]:gap-0">
-      {/* Top Border Line */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-[#041a38]" />
-
-      {/* Decorative center piece background */}
-      <div
-        className="hidden min-[1101px]:block absolute top-0 left-1/2 -translate-x-1/2 w-3/5 h-[80px] border-b-2 border-x-2 border-[#2563a8] bg-[#041a38] z-0"
-        style={{
-          clipPath: 'polygon(0 0, 100% 0, 95% 100%, 5% 100%)',
-          boxShadow: 'inset 0 -20px 20px -20px rgba(79, 195, 247, 0.5)'
-        }}
-      />
-
-      {/* Left Time */}
-      <div className="flex items-center gap-x-2 text-[#64b5f6] text-xs w-full min-[1101px]:text-sm min-[1101px]:w-1/4 relative z-10 min-[1101px]:pt-2 min-w-0">
-        <Clock className="w-4 h-4 shrink-0" />
-        <span className="font-mono whitespace-nowrap">{formatClock(time)}</span>
-        <span className="whitespace-nowrap">{WEEKDAYS[time.getDay()]}</span>
-      </div>
-
-      {/* Center Title：双击切换全屏 */}
-      <div
-        className="group flex flex-col items-center justify-center relative w-full min-[1101px]:w-1/2 z-10 min-[1101px]:pt-1 cursor-pointer select-none min-w-0"
-        onDoubleClick={toggleFullscreen}
-        title={isFullscreen ? '双击退出全屏' : '双击进入全屏'}
-      >
-        <h1 className="text-xl min-[1101px]:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-[#e0f7fa] to-[#4fc3f7] tracking-[0.06em] min-[1101px]:tracking-[0.2em] drop-shadow-[0_0_15px_rgba(79,195,247,0.8)] text-center leading-tight">
-          {mode === 'dispatch' ? '政务服务大厅运营指挥平台' : '政务服务大厅综合监控平台'}
-        </h1>
-        <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] text-[#81d4fa] bg-[rgba(12,35,68,0.92)] border border-[#2563a8] px-2.5 py-0.5 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20">
-          {isFullscreen ? '双击退出全屏' : '双击进入全屏'}
-        </span>
-
-        <div className="flex items-center justify-center gap-2 mt-1 w-full min-w-0 px-1">
-          <div className="hidden min-[1101px]:block relative h-px w-24 overflow-hidden bg-[#1a4f8c]">
-            <div className="absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-[#4fc3f7] to-transparent animate-beam-left" />
-          </div>
-          <div className="min-w-0 text-[#4fc3f7] text-[8px] min-[1101px]:text-[10px] tracking-[0.04em] min-[1101px]:tracking-[0.3em] font-medium opacity-80 text-center leading-snug">
-            GOVERNMENT SERVICE HALL OPERATION CENTER
-          </div>
-          <div className="hidden min-[1101px]:block relative h-px w-24 overflow-hidden bg-[#1a4f8c]">
-            <div className="absolute inset-y-0 w-12 bg-gradient-to-r from-transparent via-[#4fc3f7] to-transparent animate-beam-right" />
-          </div>
+    <header className="flex flex-col gap-2 border-b border-white/[0.06] px-3 py-2.5 min-[1101px]:px-5">
+      <div className="flex flex-col gap-2 min-[1101px]:flex-row min-[1101px]:items-start min-[1101px]:justify-between min-[1101px]:gap-3">
+        <div
+          className="min-w-0 cursor-pointer select-none"
+          onDoubleClick={toggleFullscreen}
+          title={isFullscreen ? '双击退出全屏' : '双击进入全屏'}
+        >
+          <h1 className="text-lg font-semibold leading-snug tracking-normal text-[var(--gov-text-primary)] min-[1101px]:truncate min-[1101px]:text-[22px]">
+            {mode === 'dispatch' ? '政务服务大厅运营指挥平台' : '政务服务大厅综合监控平台'}
+          </h1>
+          <p className="mt-0.5 text-[13px] leading-snug tracking-normal text-[var(--gov-text-muted)] min-[1101px]:truncate">
+            杭州市政务服务中心 · 市民中心主厅
+          </p>
         </div>
 
-      </div>
-
-      {/* Right: mode switch + ticker */}
-      <div className="flex items-center w-full min-[1101px]:w-1/4 justify-end gap-2 relative z-10 min-[1101px]:pt-2 min-w-0">
-        {modeButton}
-
-        <div className={`flex items-center border-l-2 pl-2 min-w-0 flex-1 min-[1101px]:flex-none min-[1101px]:w-[240px] ${mode === 'dispatch' && hasRedAlert ? 'border-[color:var(--gov-danger)]' : 'border-[#4fc3f7]'}`}>
-          {showAlertIcon ? (
-            <AlertTriangle className={`w-3.5 h-3.5 shrink-0 mr-2 ${hasRedAlert ? 'text-[var(--gov-danger)] animate-pulse' : 'text-[var(--gov-gold)]'}`} />
-          ) : (
-            <Volume2 className="w-3.5 h-3.5 text-[#4fc3f7] shrink-0 mr-2" />
-          )}
-          <div className="overflow-hidden whitespace-nowrap flex-1 min-w-0">
-            {showRetry ? (
-              <div className={`flex items-center gap-2 text-xs min-[1101px]:text-sm ${tickerClass}`}>
-                <span className="truncate">{tickerText}</span>
-                <button
-                  type="button"
-                  onClick={retry}
-                  className="shrink-0 text-[10px] px-1.5 py-0.5 border border-current rounded-sm"
-                >
-                  重试
-                </button>
-              </div>
-            ) : tickerText.length > 18 ? (
-              <div className={`animate-marquee flex w-max text-xs min-[1101px]:text-sm ${tickerClass}`}>
-                <span className="pr-12">{tickerText}</span>
-                <span className="pr-12">{tickerText}</span>
-              </div>
-            ) : (
-              <div className={`truncate text-xs min-[1101px]:text-sm ${tickerClass}`}>{tickerText}</div>
-            )}
+        <div className="flex items-center justify-between gap-3 min-[1101px]:shrink-0">
+          <button
+            type="button"
+            onClick={onToggleMode}
+            className="gov-btn inline-flex items-center gap-1.5 rounded-md border border-white/[0.12] bg-white/[0.03] px-2.5 py-1 text-[13px] text-[var(--gov-text-primary)] hover:bg-white/[0.06]"
+            title="切换调度 / 汇报模式"
+          >
+            {mode === 'dispatch'
+              ? <Presentation size={16} strokeWidth={1.75} />
+              : <MonitorCog size={16} strokeWidth={1.75} />}
+            <span>{mode === 'dispatch' ? '汇报模式' : '调度模式'}</span>
+          </button>
+          <div className="text-right leading-tight">
+            <div className="font-mono text-[13px] tabular-nums text-[var(--gov-text-primary)]">{formatClock(time)}</div>
+            <div className="text-xs text-[var(--gov-text-muted)]">{WEEKDAYS[time.getDay()]}</div>
           </div>
         </div>
+      </div>
+
+      <div className={`flex min-w-0 items-center gap-2 rounded-md px-2 py-1 ${mode === 'dispatch' && hasRedAlert ? 'bg-[rgba(224,138,132,0.08)]' : 'bg-white/[0.03]'}`}>
+        {showAlertIcon ? (
+          <AlertTriangle size={16} strokeWidth={1.75} className={`shrink-0 ${hasRedAlert ? 'text-[var(--gov-danger)]' : 'text-[var(--gov-warning)]'}`} />
+        ) : (
+          <span className="shrink-0 text-xs text-[var(--gov-text-muted)]">公告</span>
+        )}
+        {showRetry ? (
+          <div className={`flex min-w-0 flex-1 items-center gap-2 text-[13px] ${tickerClass}`}>
+            <span className="truncate">{tickerText}</span>
+            <button
+              type="button"
+              onClick={retry}
+              className="gov-btn shrink-0 rounded-md border border-current px-1.5 py-0.5 text-xs"
+            >
+              重试
+            </button>
+          </div>
+        ) : (
+          <TickerLine text={tickerText} className={tickerClass} />
+        )}
       </div>
     </header>
   );

@@ -2,35 +2,40 @@ import { Card } from './Card';
 import { QueryState } from './QueryState';
 import { EChart, areaSeries, axisTooltip, barSeries, categoryAxis, chartGrid, valueAxis } from './EChart';
 import { useServiceItemRanking, useAgeDistribution, useWeeklyFlow, useVisitStatistics, useEducationStats } from '../hooks/useData';
-import { useCountUp, useChartDataRefresh } from '../hooks/useCarousel';
+import { useChartDataRefresh } from '../hooks/useCarousel';
 import { useNarrowChart } from '../hooks/usePhoneLayout';
+import { theme } from '../theme';
 
 export function ChartLegend({ items }: { items: { label: string; color: string }[] }) {
   return (
-    <div className="chart-legend absolute top-0 right-0 z-10 flex flex-wrap items-center justify-end gap-x-3 gap-y-0.5 pr-1 max-w-full">
+    <div className="chart-legend absolute top-0 right-0 z-10 flex max-w-full flex-wrap items-center justify-end gap-x-3 gap-y-0.5 pr-1">
       {items.map(item => (
-        <div key={item.label} className="flex items-center space-x-1">
-          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-          <span className="text-[9px] text-[var(--gov-text-muted)]">{item.label}</span>
+        <div key={item.label} className="flex items-center gap-1.5">
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: item.color }} />
+          <span className="text-xs text-[var(--gov-text-muted)]">{item.label}</span>
         </div>
       ))}
     </div>
   );
 }
 
-function FlipClock({ num }: { num: number }) {
-  const animatedNum = useCountUp(num, 1500);
-  const digits = animatedNum.toString().padStart(5, '0').split('');
+function Figure({ label, value }: { label: string; value: number }) {
   return (
-    <div className="flex space-x-1 justify-center">
-      {digits.map((d, i) => (
-        <div key={i} className="flip-digit font-mono text-xl font-bold tracking-widest text-[var(--gov-text-primary)] bg-[rgba(22,52,98,0.95)] w-6 h-8 flex items-center justify-center border border-[color:var(--gov-border)] rounded-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-all duration-300">
-          {d}
-        </div>
-      ))}
+    <div className="min-w-0">
+      <div className="truncate text-xs text-[var(--gov-text-muted)]">{label}</div>
+      <div className="font-mono text-lg font-semibold tabular-nums text-[var(--gov-text-primary)]">
+        {value.toLocaleString('zh-CN')}
+      </div>
     </div>
   );
 }
+
+const AGE_SERIES = [
+  { key: '0-16岁', color: theme.series[0] },
+  { key: '17-39岁', color: theme.series[1] },
+  { key: '40-59岁', color: theme.series[2] },
+  { key: '60岁以上', color: theme.series[3] },
+] as const;
 
 export function LeftPanel() {
   const itemRankingQuery = useServiceItemRanking();
@@ -45,37 +50,30 @@ export function LeftPanel() {
   const visitStats = visitQuery.data;
   const educationStats = educationQuery.data;
   const maxItemCount = itemRanking[0]?.count ?? 1;
-  
-  // 图表数据动态刷新
+
   const animatedAgeData = useChartDataRefresh(ageData, 4000, 0.12);
   const animatedFlowData = useChartDataRefresh(flowData, 5000, 0.1);
+  const ring = 2 * Math.PI * 34;
 
   return (
-    <div className="side-panel flex flex-col space-y-4 w-[28%] h-full pr-2">
-      
-      {/* 今日办理事项 TOP（按实际办件量排序，支撑动态开窗与物料准备） */}
-      <Card title="今日办理事项 TOP" className="flex-[2.4] min-h-0">
+    <div className="side-panel flex h-full w-[28%] min-w-0 flex-col gap-3 pr-2">
+
+      <Card title="今日办理事项" className="min-h-0 flex-[2.4]">
         <QueryState query={itemRankingQuery}>
-        <div className="flex flex-col justify-around h-full gap-2">
+        <div className="flex h-full flex-col justify-around gap-2">
           {itemRanking.map((item, i) => (
-            <div key={item.name} className="flex items-center space-x-2.5">
-              <span className={`w-5 h-5 flex items-center justify-center text-[11px] font-bold rounded-sm shrink-0 ${
-                i < 3 ? 'text-[#0a1f39] bg-[var(--gov-gold)]' : 'text-[var(--gov-text-muted)] bg-[rgba(120,175,235,0.24)]'
-              }`}>
-                {i + 1}
-              </span>
-              <span className="w-24 max-[767px]:w-[4.8rem] text-[11px] text-[var(--gov-text-secondary)] truncate shrink-0">{item.name}</span>
-              <div className="flex-1 min-w-0 h-2 bg-[rgba(120,175,235,0.16)] rounded-full overflow-hidden">
+            <div key={item.name} className="flex min-w-0 items-center gap-2">
+              <span className="w-4 shrink-0 text-right font-mono text-xs tabular-nums text-[var(--gov-text-muted)]">{i + 1}</span>
+              <span className="w-28 shrink-0 truncate text-[13px] text-[var(--gov-text-secondary)] max-[767px]:w-24">{item.name}</span>
+              <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-sm bg-white/[0.06]">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#2e7bd1] to-[#55a6e8] transition-all duration-700"
+                  className="h-full rounded-sm bg-zinc-300 transition-[width] duration-150 ease-out"
                   style={{ width: `${(item.count / maxItemCount) * 100}%` }}
                 />
               </div>
-              <span className="w-9 text-right text-xs font-mono font-bold text-white shrink-0">{item.count}</span>
-              <span className={`w-11 text-right text-[10px] shrink-0 ${
-                item.trend > 0 ? 'text-[var(--gov-gold-soft)]' : item.trend < 0 ? 'text-[var(--gov-blue-soft)]' : 'text-[var(--gov-text-muted)]'
-              }`}>
-                {item.trend > 0 ? '↗' : item.trend < 0 ? '↘' : '—'} {Math.abs(item.trend)}%
+              <span className="w-8 shrink-0 text-right font-mono text-[13px] tabular-nums text-[var(--gov-text-primary)]">{item.count}</span>
+              <span className="w-12 shrink-0 text-right font-mono text-xs tabular-nums text-[var(--gov-text-muted)]">
+                {item.trend > 0 ? `+${item.trend}%` : item.trend < 0 ? `${item.trend}%` : '持平'}
               </span>
             </div>
           ))}
@@ -83,100 +81,71 @@ export function LeftPanel() {
         </QueryState>
       </Card>
 
-      {/* 办事市民年龄分布 */}
-      <Card title="办事市民年龄分布" className="flex-[2.2] min-h-0">
+      <Card title="办事市民年龄" className="min-h-0 flex-[2.2]">
         <QueryState query={ageQuery}>
-        <div className="chart-frame h-full relative">
-          <ChartLegend items={[
-            { label: '0-16岁', color: '#7cc4f0' },
-            { label: '17-39岁', color: '#55a6e8' },
-            { label: '40-59岁', color: '#2e7bd1' },
-            { label: '60岁以上', color: '#f0b95a' },
-          ]} />
+        <div className="chart-frame relative h-full">
+          <ChartLegend items={AGE_SERIES.map(s => ({ label: s.key, color: s.color }))} />
           <EChart option={{
             grid: chartGrid(0),
             tooltip: axisTooltip,
             xAxis: categoryAxis(animatedAgeData.map(d => String(d.name))),
             yAxis: valueAxis(),
-            series: [
-              barSeries('0-16岁', animatedAgeData.map(d => Number(d['0-16岁'])), '#7cc4f0'),
-              barSeries('17-39岁', animatedAgeData.map(d => Number(d['17-39岁'])), '#55a6e8'),
-              barSeries('40-59岁', animatedAgeData.map(d => Number(d['40-59岁'])), '#2e7bd1'),
-              barSeries('60岁以上', animatedAgeData.map(d => Number(d['60岁以上'])), '#f0b95a'),
-            ],
+            series: AGE_SERIES.map(s => barSeries(s.key, animatedAgeData.map(d => Number(d[s.key])), s.color)),
           }} />
         </div>
         </QueryState>
       </Card>
 
-      {/* 每周人流量分布情况 */}
-      <Card title="每周办事人流量分布" className="flex-[2.2] min-h-0">
+      <Card title="本周人流" className="min-h-0 flex-[2.2]">
         <QueryState query={flowQuery}>
-        <div className="chart-frame h-full relative">
-          <ChartLegend items={[{ label: '现场办理', color: '#55a6e8' }, { label: '网上办理', color: '#f0b95a' }]} />
+        <div className="chart-frame relative h-full">
+          <ChartLegend items={[{ label: '现场办理', color: theme.series[0] }, { label: '网上办理', color: theme.series[2] }]} />
           <EChart option={{
             grid: chartGrid(narrow ? 40 : 0),
             tooltip: axisTooltip,
             xAxis: categoryAxis(animatedFlowData.map(d => String(d.name)), narrow ? 40 : 0),
             yAxis: valueAxis(),
             series: [
-              areaSeries('现场办理', animatedFlowData.map(d => Number(d['现场办理'])), '#55a6e8'),
-              areaSeries('网上办理', animatedFlowData.map(d => Number(d['网上办理'])), '#f0b95a'),
+              areaSeries('现场办理', animatedFlowData.map(d => Number(d['现场办理'])), theme.series[0]),
+              areaSeries('网上办理', animatedFlowData.map(d => Number(d['网上办理'])), theme.series[2]),
             ],
           }} />
         </div>
         </QueryState>
       </Card>
 
-      {/* 业务办理人数统计 */}
-      <Card title="业务办理人数统计" className="flex-[2.7] min-h-0">
+      <Card title="办件量" className="min-h-0 flex-[2.7]">
         <QueryState query={[visitQuery, educationQuery]}>
-        <div className="visit-grid grid grid-cols-3 gap-2 h-full pt-2">
-
-          <div className="flex flex-col justify-between space-y-2">
-            <div className="border-l-2 border-[color:var(--gov-gold)] pl-2 text-[10px] text-[var(--gov-text-secondary)] tracking-[0.24em]">上月办理情况</div>
-            <div className="flex flex-col justify-center flex-1 space-y-2">
-              <div className="text-[10px] text-[var(--gov-text-secondary)]">● 网上办理数量 (件)</div>
-              <FlipClock num={visitStats.lastMonth.infant} />
-            </div>
-            <div className="flex flex-col justify-center flex-1 space-y-2">
-              <div className="text-[10px] text-[var(--gov-text-secondary)]">● 现场办理数量 (件)</div>
-              <FlipClock num={visitStats.lastMonth.adult} />
-            </div>
+        <div className="visit-grid grid h-full grid-cols-3 items-center gap-3 pt-1">
+          <div className="min-w-0 space-y-3">
+            <div className="text-[13px] text-[var(--gov-text-secondary)]">上月</div>
+            <Figure label="网上办理（件）" value={visitStats.lastMonth.infant} />
+            <Figure label="现场办理（件）" value={visitStats.lastMonth.adult} />
           </div>
 
-          {/* 网上办件率圆环 */}
           <div className="flex flex-col items-center justify-center">
-            <div className="relative w-20 h-20">
-              <svg className="absolute inset-0 w-full h-full -rotate-90">
-                <circle cx="40" cy="40" r="34" fill="transparent" stroke="rgba(124, 158, 196, 0.18)" strokeWidth="3" />
+            <div className="relative h-20 w-20">
+              <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="34" fill="transparent" stroke="rgba(255,255,255,0.08)" strokeWidth="3" />
                 <circle
                   cx="40" cy="40" r="34"
-                  fill="transparent" stroke="#f0b95a" strokeWidth="3"
-                  strokeDasharray="213.6"
-                  strokeDashoffset={213.6 - (213.6 * educationStats.bachelor / 100)}
-                  className="drop-shadow-[0_0_4px_rgba(240,185,90,0.4)]"
+                  fill="transparent" stroke={theme.accent} strokeWidth="3"
+                  strokeDasharray={ring}
+                  strokeDashoffset={ring - (ring * educationStats.bachelor) / 100}
                 />
               </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-base font-bold text-white">{educationStats.bachelor}%</span>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="font-mono text-sm font-semibold tabular-nums text-[var(--gov-text-primary)]">{educationStats.bachelor}%</span>
               </div>
             </div>
-            <div className="text-[10px] text-[var(--gov-text-secondary)] mt-1 tracking-[0.18em]">网上办件率</div>
+            <div className="mt-1 text-[13px] tracking-normal text-[var(--gov-text-secondary)]">网上办件率</div>
           </div>
 
-          <div className="flex flex-col justify-between space-y-2">
-            <div className="border-l-2 border-[color:var(--gov-gold)] pl-2 text-[10px] text-[var(--gov-text-secondary)] tracking-[0.24em]">本月办理情况</div>
-            <div className="flex flex-col justify-center flex-1 space-y-2">
-              <div className="text-[10px] text-[var(--gov-text-secondary)]">● 即办件数量 (件)</div>
-              <FlipClock num={visitStats.thisMonth.youth} />
-            </div>
-            <div className="flex flex-col justify-center flex-1 space-y-2">
-              <div className="text-[10px] text-[var(--gov-text-secondary)]">● 承诺件数量 (件)</div>
-              <FlipClock num={visitStats.thisMonth.elderly} />
-            </div>
+          <div className="min-w-0 space-y-3">
+            <div className="text-[13px] text-[var(--gov-text-secondary)]">本月截至今日</div>
+            <Figure label="即办件（件）" value={visitStats.thisMonth.youth} />
+            <Figure label="承诺件（件）" value={visitStats.thisMonth.elderly} />
           </div>
-
         </div>
         </QueryState>
       </Card>

@@ -2,21 +2,21 @@
 
 // 市民年龄分布数据
 export const ageDistributionData = [
-  { name: '一季度', '0-16岁': 85,  '17-39岁': 310, '40-59岁': 420, '60岁以上': 185 },
-  { name: '二季度', '0-16岁': 110, '17-39岁': 380, '40-59岁': 460, '60岁以上': 210 },
-  { name: '三季度', '0-16岁': 95,  '17-39岁': 350, '40-59岁': 390, '60岁以上': 230 },
-  { name: '四季度', '0-16岁': 70,  '17-39岁': 290, '40-59岁': 440, '60岁以上': 260 },
+  { name: '一季度', '0-16岁': 62,  '17-39岁': 248, '40-59岁': 391, '60岁以上': 214 },
+  { name: '二季度', '0-16岁': 97,  '17-39岁': 336, '40-59岁': 352, '60岁以上': 188 },
+  { name: '三季度', '0-16岁': 141, '17-39岁': 302, '40-59岁': 287, '60岁以上': 163 },
+  { name: '四季度', '0-16岁': 74,  '17-39岁': 271, '40-59岁': 418, '60岁以上': 246 },
 ];
 
 // 每周人流量数据
 export const weeklyFlowData = [
-  { name: '周一', 现场办理: 200, 网上办理: 150 },
-  { name: '周二', 现场办理: 180, 网上办理: 120 },
-  { name: '周三', 现场办理: 300, 网上办理: 250 },
-  { name: '周四', 现场办理: 250, 网上办理: 180 },
-  { name: '周五', 现场办理: 350, 网上办理: 300 },
-  { name: '周六', 现场办理: 200, 网上办理: 160 },
-  { name: '周日', 现场办理: 150, 网上办理: 100 },
+  { name: '周一', 现场办理: 612, 网上办理: 488 },
+  { name: '周二', 现场办理: 574, 网上办理: 501 },
+  { name: '周三', 现场办理: 493, 网上办理: 466 },
+  { name: '周四', 现场办理: 538, 网上办理: 442 },
+  { name: '周五', 现场办理: 589, 网上办理: 517 },
+  { name: '周六', 现场办理: 246, 网上办理: 318 },
+  { name: '周日', 现场办理: 168, 网上办理: 221 },
 ];
 
 // 热门办理事项
@@ -24,92 +24,92 @@ export const serviceCategories = ['户籍办理', '社保查询', '营业执照'
 
 // 今日办理事项排行（按实际办件量，支撑动态开窗与物料准备）
 export const serviceItemRanking = [
-  { name: '社保卡补换领', count: 286, trend: 12 },
-  { name: '不动产转移登记', count: 214, trend: -5 },
-  { name: '营业执照设立', count: 198, trend: 8 },
-  { name: '户籍迁入', count: 156, trend: 23 },
-  { name: '公积金提取', count: 132, trend: -2 },
-  { name: '发票代开', count: 97, trend: 4 },
+  { name: '社会保障卡补领', count: 186, trend: 4 },
+  { name: '不动产转移登记', count: 142, trend: -11 },
+  { name: '个体工商户设立', count: 128, trend: 7 },
+  { name: '户口迁移', count: 97, trend: 0 },
+  { name: '住房公积金提取', count: 84, trend: -3 },
+  { name: '不动产抵押登记', count: 61, trend: 2 },
 ];
 
 // 运行成效趋势（近 6 个月，汇报模式核心成绩单）
 export const performanceTrend = [
-  { month: '2月', 平均等待: 41, 网办率: 55.2, 满意率: 98.4 },
-  { month: '3月', 平均等待: 37, 网办率: 58.9, 满意率: 98.7 },
-  { month: '4月', 平均等待: 33, 网办率: 61.4, 满意率: 98.9 },
-  { month: '5月', 平均等待: 30, 网办率: 64.0, 满意率: 99.1 },
-  { month: '6月', 平均等待: 26, 网办率: 66.8, 满意率: 99.3 },
-  { month: '7月', 平均等待: 23, 网办率: 68.4, 满意率: 99.6 },
+  { month: '6月', 平均等待: 28, 网办率: 58.4, 满意率: 96.2 },
+  { month: '7月', 平均等待: 26, 网办率: 61.1, 满意率: 96.8 },
+  { month: '8月', 平均等待: 31, 网办率: 57.6, 满意率: 95.4 },
+  { month: '9月', 平均等待: 24, 网办率: 63.2, 满意率: 97.1 },
+  { month: '10月', 平均等待: 22, 网办率: 64.8, 满意率: 96.5 },
+  { month: '11月', 平均等待: 25, 网办率: 62.8, 满意率: 95.9 },
 ];
 
 // 业务办理统计
 export const visitStatistics = {
   lastMonth: {
-    infant: 45623,
-    adult: 32108,
+    infant: 38462,
+    adult: 29107,
   },
   thisMonth: {
-    youth: 52109,
-    elderly: 28847,
+    youth: 21046,
+    elderly: 8731,
   },
 };
 
 // 预约时段分布
 export const appointmentSlots = [
-  { time: '08:00', count: 42 },
-  { time: '09:00', count: 128 },
-  { time: '10:00', count: 186 },
-  { time: '11:00', count: 153 },
-  { time: '12:00', count: 67 },
-  { time: '13:00', count: 94 },
-  { time: '14:00', count: 172 },
-  { time: '15:00', count: 145 },
-  { time: '16:00', count: 98 },
-  { time: '17:00', count: 53 },
+  { time: '08:00', count: 36 },
+  { time: '09:00', count: 142 },
+  { time: '10:00', count: 168 },
+  { time: '11:00', count: 121 },
+  { time: '12:00', count: 44 },
+  { time: '13:00', count: 79 },
+  { time: '14:00', count: 133 },
+  { time: '15:00', count: 97 },
+  { time: '16:00', count: 112 },
+  { time: '17:00', count: 41 },
 ];
 
 // 公告内容
-export const announcement = '本大厅实行全程网上预约，请市民提前通过政务APP或官网进行预约办理。窗口3-5号暂停服务，预计下午14:00恢复，如需办理请前往综合窗口。本周五大厅将进行消防演练，请各部门做好配合。';
+export const announcement = '请通过浙里办或本厅官网预约。3 至 5 号窗口暂停服务，预计 14:00 恢复，未预约请到综合窗口取号。本周五 15:30 消防演练，演练期间暂停取号约 20 分钟。';
 
 // 服务叫号记录
 export const serviceRecords = [
-  { date: 'A-0231', name: '张**', service: '户籍办理', status: '已完成' },
-  { date: 'B-0089', name: '李**', service: '社保查询', status: '办理中' },
-  { date: 'A-0232', name: '王**', service: '营业执照', status: '已完成' },
-  { date: 'C-0045', name: '赵**', service: '不动产登记', status: '待叫号' },
-  { date: 'B-0090', name: '陈**', service: '公积金', status: '办理中' },
-  { date: 'A-0233', name: '刘**', service: '税务申报', status: '已完成' },
-  { date: 'D-0031', name: '孙**', service: '户籍办理', status: '待叫号' },
-  { date: 'C-0046', name: '周**', service: '营业执照', status: '已完成' },
-  { date: 'B-0091', name: '吴**', service: '社保查询', status: '办理中' },
-  { date: 'A-0234', name: '郑**', service: '不动产登记', status: '已完成' },
+  { date: 'A0231', name: '张*', service: '新生儿入户', status: '已完成' },
+  { date: 'B0089', name: '欧阳**', service: '养老保险关系转移', status: '办理中' },
+  { date: 'A0232', name: '王*', service: '个体工商户设立', status: '已完成' },
+  { date: 'C0045', name: '司马*', service: '二手房转移登记', status: '待叫号' },
+  { date: 'B0090', name: '陈**', service: '住房公积金提取', status: '办理中' },
+  { date: 'A0233', name: '李*', service: '发票代开', status: '已完成' },
+  { date: 'D0031', name: '上官*', service: '社会保障卡补领', status: '过号' },
+  { date: 'C0046', name: '周*', service: '食品经营许可变更', status: '已完成' },
+  { date: 'B0091', name: '吴**', service: '医保费用报销', status: '办理中' },
+  { date: 'A0234', name: '郑*', service: '不动产抵押登记', status: '待叫号' },
 ];
 
 // 各窗口服务量
 export const windowUsageData = [
-  { name: '综合窗口', 本周: 200, 上周: 150 },
-  { name: '户籍窗口', 本周: 280, 上周: 220 },
-  { name: '社保窗口', 本周: 150, 上周: 180 },
-  { name: '税务窗口', 本周: 300, 上周: 260 },
-  { name: '不动产', 本周: 220, 上周: 190 },
+  { name: '综合窗口', 本周: 186, 上周: 204 },
+  { name: '户籍窗口', 本周: 241, 上周: 228 },
+  { name: '社保窗口', 本周: 167, 上周: 193 },
+  { name: '税务窗口', 本周: 132, 上周: 141 },
+  { name: '不动产', 本周: 118, 上周: 96 },
 ];
 
 // 工作人员接待数据
 export const staffData = [
-  { name: '张某某', 接待数: 80, 目标: 90 },
-  { name: '李某某', 接待数: 120, 目标: 100 },
-  { name: '王某某', 接待数: 150, 目标: 130 },
-  { name: '赵某某', 接待数: 90, 目标: 110 },
-  { name: '陈某某', 接待数: 140, 目标: 120 },
+  { name: '张晓辉', 接待数: 31, 目标: 70 },
+  { name: '李文静', 接待数: 44, 目标: 80 },
+  { name: '王志强', 接待数: 52, 目标: 75 },
+  { name: '赵敏', 接待数: 28, 目标: 70 },
+  { name: '陈立', 接待数: 47, 目标: 80 },
 ];
 
 // 今日政务服务情况
 export const dailyServiceStats = {
-  totalAppointments: 85420,
-  pending: 1283,
-  completed: 73918,
-  processing: 2156,
-  praised: 71862,
+  totalAppointments: 6842,
+  pending: 1137,
+  completed: 5219,
+  processing: 486,
+  praised: 4940,
 };
 
 // 自助服务终端统计
@@ -143,7 +143,7 @@ export const mapFlowData = {
 
 // 网上办件率
 export const educationStats = {
-  bachelor: 73,
+  bachelor: 64.2,
 };
 
 // ==================== v2 调度模式数据 ====================
@@ -181,52 +181,52 @@ export const windowMatrix: { id: string; business: string; status: WindowStatus;
 
 // 效能考核指标（来源：一窗受理平台）
 export const efficiencyStats = {
-  onTimeRate: 99.2,        // 承诺件按期办结率 %
-  immediateRate: 82.4,     // 即办件占比 %
-  avgProcessMinutes: 9.6,  // 平均办理时长（分钟）
+  onTimeRate: 97.4,        // 承诺件按期办结率 %
+  immediateRate: 71.6,     // 即办件占比 %
+  avgProcessMinutes: 11.8, // 平均办理时长（分钟）
   todayAccepted: 1286,     // 今日受理量
 };
 
 // 超期 / 临期承诺件红榜（点击可查看办件详情并督办）
 export const overdueItems = [
   {
-    id: 'CN-0703-018', item: '建设工程规划许可', window: '不动产 08 窗',
+    id: 'HZSC-20261104-0842', item: '建设工程规划许可', window: '不动产 08 窗',
     deadlineText: '已超期 6 小时', level: 'overdue' as const,
-    applicant: '杭州某某建设有限公司', acceptedAt: '2026-06-24 09:32', promiseDays: 7,
-    currentStep: '规划科技术审查', stepOwner: '规划科·王科员', delayReason: '待建设单位补充日照分析报告',
+    applicant: '杭州市钱塘湾建设发展有限公司', acceptedAt: '2026-11-04 09:32:18', promiseDays: 7,
+    currentStep: '规划科技术审查', stepOwner: '规划科 · 周启明', delayReason: '建设单位尚未补交日照分析报告',
   },
   {
-    id: 'CN-0702-141', item: '排水许可证核发', window: '综合 03 窗',
+    id: 'HZSC-20261113-1106', item: '城镇污水排入排水管网许可', window: '综合 03 窗',
     deadlineText: '剩余 5 小时', level: 'near' as const,
-    applicant: '杭州某餐饮管理有限公司', acceptedAt: '2026-06-29 14:05', promiseDays: 4,
-    currentStep: '现场核查结果录入', stepOwner: '市政科·李科员', delayReason: '现场核查已完成，待录入系统',
+    applicant: '西湖区清波餐饮管理有限公司', acceptedAt: '2026-11-13 14:05:42', promiseDays: 4,
+    currentStep: '现场核查结果录入', stepOwner: '市政科 · 李文静', delayReason: '现场核查已完成，结果尚未录入系统',
   },
   {
-    id: 'CN-0701-093', item: '食品经营许可变更', window: '综合 05 窗',
+    id: 'HZSC-20261116-0733', item: '食品经营许可变更', window: '综合 05 窗',
     deadlineText: '剩余 19 小时', level: 'near' as const,
-    applicant: '某连锁便利店（城西店）', acceptedAt: '2026-06-30 10:47', promiseDays: 3,
-    currentStep: '材料复核', stepOwner: '市场科·赵科员', delayReason: '经营范围变更需二次核对',
+    applicant: '滨江区星澜便利店', acceptedAt: '2026-11-16 10:47:06', promiseDays: 3,
+    currentStep: '材料复核', stepOwner: '市场科 · 赵敏', delayReason: '经营范围变更需核对前后置许可',
   },
 ];
 
 // 好差评满意度（来源：好差评系统）
 export const satisfactionStats = {
-  todayRate: 99.6,
-  weekRate: 99.3,
-  counts: { great: 1093, good: 176, ok: 8, bad: 5 },
+  todayRate: 94.7,
+  weekRate: 95.8,
+  counts: { great: 812, good: 246, ok: 41, bad: 18 },
   badReviews: [
-    { time: '10:42', window: '社保 06 窗', item: '养老保险转移', reason: '等待时间过长' },
-    { time: '09:15', window: '综合 02 窗', item: '公司注销', reason: '材料告知不清' },
+    { time: '10:42:17', window: '社保 06 窗', item: '养老保险关系转移', reason: '等待超过 40 分钟' },
+    { time: '09:15:03', window: '综合 02 窗', item: '公司注销登记', reason: '一次性告知不完整' },
   ],
 };
 
 // 窗口人员绩效（接待量 / 平均时长 / 满意度三维）
 export const staffPerformance = [
-  { name: '张某某', 接待数: 80, 平均时长: 8.2, 满意度: 99.1 },
-  { name: '李某某', 接待数: 120, 平均时长: 7.5, 满意度: 99.8 },
-  { name: '王某某', 接待数: 150, 平均时长: 6.9, 满意度: 99.5 },
-  { name: '赵某某', 接待数: 90, 平均时长: 10.4, 满意度: 98.2 },
-  { name: '陈某某', 接待数: 140, 平均时长: 7.1, 满意度: 99.6 },
+  { name: '张晓辉', 接待数: 31, 平均时长: 8.4, 满意度: 97.2 },
+  { name: '李文静', 接待数: 44, 平均时长: 7.1, 满意度: 96.4 },
+  { name: '王志强', 接待数: 52, 平均时长: 6.6, 满意度: 98.1 },
+  { name: '赵敏', 接待数: 28, 平均时长: 12.8, 满意度: 94.6 },
+  { name: '陈立', 接待数: 47, 平均时长: 9.3, 满意度: 95.8 },
 ];
 
 // 市域政务服务网点（示范城市：杭州）
@@ -260,16 +260,16 @@ export const siteDetails = Object.fromEntries(
         totalWindows: Math.max(6, Math.round(base / 2)),
         openWindows: Math.max(4, Math.round(base / 2.6)),
         todayAccepted: 150 + base * 14,
-        satisfaction: Math.round((99.8 - (s.status === 'alert' ? 1.3 : s.status === 'busy' ? 0.4 : 0.1)) * 10) / 10,
+        satisfaction: Math.round((96.4 - (s.status === 'alert' ? 2.4 : s.status === 'busy' ? 0.8 : 0)) * 10) / 10,
         queues: SITE_BUSINESSES.map((b, j) => ({
           type: b,
           waiting: Math.max(0, Math.round(base * SITE_QUEUE_RATIO[j])),
         })),
-        hourly: [8, 9, 10, 11, 12, 13, 14, 15, 16].map(h => ({
-          hour: `${h}:00`,
-          waiting: Math.max(1, Math.round(base * (0.35 + 0.65 * Math.sin(((h - 7) / 9.5) * Math.PI)))),
+        hourly: [0.46, 0.82, 1, 0.74, 0.36, 0.58, 0.88, 0.61, 0.44].map((ratio, hourIndex) => ({
+          hour: `${hourIndex + 8}:00`,
+          waiting: Math.max(1, Math.round(base * ratio)),
         })),
-        dutyPhone: `0571-8${String(2600100 + i * 137).slice(0, 6)}`,
+        dutyPhone: `0571-${String(86021036 + i * 173)}`,
       },
     ];
   }),
@@ -282,33 +282,33 @@ export const windowDetails = windowMatrix.map((w, i) => ({
   staff: STAFF_NAMES[i % STAFF_NAMES.length],
   todayServed: 18 + ((i * 7) % 23),
   avgMinutes: Math.round((6 + ((i * 3) % 7) + (i % 2) * 0.5) * 10) / 10,
-  satisfaction: Math.round((98.4 + ((i * 13) % 16) / 10) * 10) / 10,
+  satisfaction: Math.round((93.4 + ((i * 11) % 36) / 10) * 10) / 10,
   authorizedBusinesses: i % 3 === 0 ? ['综合受理', w.business] : [w.business],
 }));
 
 // 办事市民居住地分布（区县着色，支撑服务站选址决策）
 export const residenceDistribution = [
-  { name: '萧山区', value: 1860 },
-  { name: '余杭区', value: 1620 },
-  { name: '上城区', value: 1540 },
-  { name: '拱墅区', value: 1380 },
-  { name: '西湖区', value: 1290 },
-  { name: '滨江区', value: 1120 },
-  { name: '钱塘区', value: 980 },
-  { name: '临平区', value: 890 },
-  { name: '富阳区', value: 620 },
-  { name: '临安区', value: 450 },
-  { name: '桐庐县', value: 280 },
-  { name: '建德市', value: 240 },
-  { name: '淳安县', value: 160 },
+  { name: '萧山区', value: 1642 },
+  { name: '余杭区', value: 1418 },
+  { name: '西湖区', value: 1386 },
+  { name: '上城区', value: 1204 },
+  { name: '拱墅区', value: 986 },
+  { name: '钱塘区', value: 911 },
+  { name: '滨江区', value: 874 },
+  { name: '临平区', value: 642 },
+  { name: '富阳区', value: 418 },
+  { name: '临安区', value: 276 },
+  { name: '桐庐县', value: 163 },
+  { name: '建德市', value: 141 },
+  { name: '淳安县', value: 88 },
 ];
 
 // 预约与分流指标
 export const diversionStats = {
-  onlineRate: 68.4,        // 网办分流率 %
-  onlineRateTrend: 3.1,    // 环比 pp
-  noShowRate: 6.8,         // 预约爽约率 %
-  selfServiceShare: 22.5,  // 自助办理占比 %
+  onlineRate: 62.8,        // 网办分流率 %
+  onlineRateTrend: -1.4,   // 环比 pp
+  noShowRate: 8.6,         // 预约爽约率 %
+  selfServiceShare: 19.4,  // 自助办理占比 %
 };
 
 // 设备运行状态（来源：终端管理平台心跳）
@@ -325,8 +325,8 @@ export const deviceStats = {
     { name: '高拍仪03', type: '高拍仪', status: 'online' as DeviceStatus },
   ],
   workOrders: [
-    { id: 'GD-0703-02', device: '自助终端03', status: '已派单', time: '10:21' },
-    { id: 'GD-0703-01', device: '评价器05', status: '处理中', time: '09:36' },
+    { id: 'WO-20261119-0216', device: '自助终端03', status: '已派单', time: '10:21:08' },
+    { id: 'WO-20261119-0144', device: '评价器05', status: '处理中', time: '09:36:41' },
   ],
 };
 
