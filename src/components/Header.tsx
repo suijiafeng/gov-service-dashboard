@@ -107,21 +107,21 @@ export function Header({ mode, onToggleMode }: HeaderProps) {
 
   return (
     <header className="flex flex-col gap-2 border-b border-white/[0.06] px-3 py-2.5 min-[1101px]:px-5">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col gap-2 min-[1101px]:flex-row min-[1101px]:items-start min-[1101px]:justify-between min-[1101px]:gap-3">
         <div
           className="min-w-0 cursor-pointer select-none"
           onDoubleClick={toggleFullscreen}
           title={isFullscreen ? '双击退出全屏' : '双击进入全屏'}
         >
-          <h1 className="truncate text-lg font-semibold tracking-normal text-[var(--gov-text-primary)] min-[1101px]:text-[22px]">
+          <h1 className="text-lg font-semibold leading-snug tracking-normal text-[var(--gov-text-primary)] min-[1101px]:truncate min-[1101px]:text-[22px]">
             {mode === 'dispatch' ? '政务服务大厅运营指挥平台' : '政务服务大厅综合监控平台'}
           </h1>
-          <p className="mt-0.5 truncate text-[13px] tracking-normal text-[var(--gov-text-muted)]">
+          <p className="mt-0.5 text-[13px] leading-snug tracking-normal text-[var(--gov-text-muted)] min-[1101px]:truncate">
             杭州市政务服务中心 · 市民中心主厅
           </p>
         </div>
 
-        <div className="flex shrink-0 items-center gap-3">
+        <div className="flex items-center justify-between gap-3 min-[1101px]:shrink-0">
           <button
             type="button"
             onClick={onToggleMode}
