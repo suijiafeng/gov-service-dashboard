@@ -25,7 +25,7 @@ Pages 工作流只在 `main` 上构建并发布 `dist/`。上面的地址当前�
 
 ![汇报模式，1920×1080](./docs/screenshots/report-1920.webp)
 
-点窗口格子或地图区县会打开详情。下图是点击桐庐县后的网点弹窗，Esc 或点击遮罩关闭。
+点窗口格子或地图区县会打开详情。下图是点击富阳区分中心后的网点弹窗，Esc 或点击遮罩关闭。
 
 ![网点详情弹窗，1920×1080](./docs/screenshots/dispatch-site-1920.webp)
 
@@ -57,7 +57,7 @@ Pages 工作流只在 `main` 上构建并发布 `dist/`。上面的地址当前�
 
 ### 手机（375×812）
 
-宽度小于 768px（样式写的是 `max-width: 767px`）时关掉整页缩放，三栏改成纵向滚动，图表给固定高度。下面两张是视口截图，不是把 1920 画布缩进手机。
+宽度在 1100px 及以下（`max-width: 1100px`）时关掉整页缩放，三栏改成纵向滚动，图表给固定高度。下面两张是视口截图，不是把 1920 画布缩进手机。
 
 <img src="./docs/screenshots/phone-dispatch-375.webp" width="375" alt="调度模式手机布局，375×812">
 
@@ -159,7 +159,7 @@ npm install
 npm run dev
 ```
 
-开发服务器默认端口 5173。`vite.config.ts` 把 `base` 设为 `/gov-service-dashboard/`，所以本地页面是：
+开发服务器监听 `127.0.0.1:5173`。`vite.config.ts` 把 `server.host` 设为 `127.0.0.1`，`base` 设为 `/gov-service-dashboard/`，所以本地页面是：
 
 <http://127.0.0.1:5173/gov-service-dashboard/>
 
@@ -181,7 +181,7 @@ npm run build       # 先 typecheck，再打出 dist/index.html
 npm run preview     # 默认端口 4173，路径同样带 base
 ```
 
-`npm run build` 在本仓库当前代码上产出单个 `dist/index.html`，约 1.18 MB，gzip 约 429 KB。单文件是故意的：`vite-plugin-singlefile` 会把动态 import 再内联回去，体积靠少注册 ECharts 模块和压缩背景图来控制，而不是拆包。
+`npm run build` 在本仓库当前代码上产出单个 `dist/index.html`，约 1.04 MB，gzip 约 338 KB。单文件是故意的：`vite-plugin-singlefile` 会把动态 import 再内联回去，体积靠少注册 ECharts 模块和压缩背景图来控制，而不是拆包。
 
 ### 部署
 
@@ -232,7 +232,7 @@ npm run preview     # 默认端口 4173，路径同样带 base
 - **单文件包只带用到的图表。** `src/lib/echarts.ts` 用 `echarts/core` 注册有限的 chart 和 component。地图组件单独用 `echarts-for-react/esm/core`，把这份 echarts 实例传进去。
 - **查询失败可以按面板重试。** `useApiData` 用 `attempt` 状态触发重新请求，组件卸载后不再写入。顶栏在告警或公告失败时也有自己的重试按钮。
 - **告警和画面分开算。** 阈值、等待时间和排序都在 `alertEngine.ts`，组件只负责展示和本地确认。
-- **手机不缩放设计稿。** `usePhoneLayout` 监听 `(max-width: 767px)`。`App` 在手机上跳过 `autofit.init`，`src/index.css` 把 `.dash-main` 改成纵向，并把图表高度写成固定像素。
+- **手机不缩放设计稿。** `usePhoneLayout` 监听 `(max-width: 1100px)`。`App` 在手机上跳过 `autofit.init`，`src/index.css` 把 `.dash-main` 改成纵向，并把图表高度写成固定像素。
 - **地图不发外网请求。** `CenterPanel` 直接 `echarts.registerMap('hangzhou', hangzhou.json)`。调度模式散点颜色表示网点正常、繁忙或积压；汇报模式散点改成统一的金色，并增加指向市民中心主厅的飞线。点击区县名称前缀能对上的网点，或点击散点，都会打开网点详情。
 
 ## 局限

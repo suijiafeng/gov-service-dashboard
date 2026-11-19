@@ -6,15 +6,16 @@ import { QueryState } from './QueryState';
 import { EChart, axisTooltip, barSeries, categoryAxis, chartGrid, valueAxis } from './EChart';
 import { useEfficiencyStats, useOverdueItems, useSatisfactionStats, useStaffPerformance } from '../hooks/useData';
 import { useNarrowChart } from '../hooks/usePhoneLayout';
+import { theme } from '../theme';
 
 function KpiTile({ label, value, unit, warn }: { label: string; value: string; unit?: string; warn?: boolean }) {
   return (
-    <div className="flex flex-col items-center justify-center bg-[rgba(22,52,98,0.6)] border border-[color:var(--gov-border)] rounded-sm py-1.5">
-      <div className="flex items-baseline space-x-0.5">
-        <span className={`text-xl font-bold font-mono ${warn ? 'text-[var(--gov-danger)]' : 'text-white'}`}>{value}</span>
-        {unit && <span className="text-[10px] text-[var(--gov-text-muted)]">{unit}</span>}
+    <div className="flex flex-col items-center justify-center bg-[var(--gov-bg-panel)] px-1 py-2">
+      <div className="flex items-baseline gap-1">
+        <span className={`font-mono text-xl font-semibold tabular-nums ${warn ? 'text-[var(--gov-danger)]' : 'text-[var(--gov-text-primary)]'}`}>{value}</span>
+        {unit && <span className="text-xs text-[var(--gov-text-muted)]">{unit}</span>}
       </div>
-      <span className="text-[10px] text-[var(--gov-text-secondary)] tracking-[0.12em]">{label}</span>
+      <span className="mt-0.5 text-xs tracking-normal text-[var(--gov-text-secondary)]">{label}</span>
     </div>
   );
 }
@@ -34,98 +35,93 @@ export function EfficiencyPanel() {
 
   const totalReviews =
     satisfaction.counts.great + satisfaction.counts.good + satisfaction.counts.ok + satisfaction.counts.bad;
+  const ring = 2 * Math.PI * 34;
+  const todayRate = satisfaction.todayRate;
 
   return (
-    <div className="side-panel flex flex-col space-y-4 w-[28%] h-full pl-2">
+    <div className="side-panel flex h-full w-[28%] min-w-0 flex-col gap-3 pl-2">
 
-      {/* 办件时效 KPI */}
-      <Card title="办件时效" className="flex-[1.6] min-h-0">
+      <Card title="办件时效" className="min-h-0 flex-[1.6]">
         <QueryState query={efficiencyQuery}>
-        <div className="stat-grid-4 grid grid-cols-4 gap-2 h-full items-center">
+        <div className="stat-grid-4 grid h-full grid-cols-4 gap-px overflow-hidden rounded-md bg-white/[0.08]">
           <KpiTile label="按期办结率" value={`${efficiency.onTimeRate}`} unit="%" warn={efficiency.onTimeRate < 99} />
           <KpiTile label="即办件占比" value={`${efficiency.immediateRate}`} unit="%" />
-          <KpiTile label="平均办理" value={`${efficiency.avgProcessMinutes}`} unit="min" />
-          <KpiTile label="今日受理" value={efficiency.todayAccepted.toLocaleString()} unit="件" />
+          <KpiTile label="平均办理" value={`${efficiency.avgProcessMinutes}`} unit="分钟" />
+          <KpiTile label="今日受理" value={efficiency.todayAccepted.toLocaleString('zh-CN')} unit="件" />
         </div>
         </QueryState>
       </Card>
 
-      {/* 超期 / 临期红榜 */}
-      <Card title={overdueQuery.loading ? '超期 / 临期承诺件（…）' : overdueQuery.error ? '超期 / 临期承诺件' : `超期 / 临期承诺件（${overdue.length}）`} className="flex-[2.4] min-h-0">
+      <Card title={overdueQuery.loading || overdueQuery.error ? '超期 / 临期承诺件' : `超期 / 临期承诺件 · ${overdue.length}`} className="min-h-0 flex-[2.4]">
         <QueryState query={overdueQuery} ignoreEmpty>
-        <div className="h-full overflow-y-auto custom-scrollbar space-y-2 pr-1">
+        <div className="custom-scrollbar h-full space-y-1 overflow-y-auto pr-1">
           {overdue.map(o => (
-            <div
+            <button
               key={o.id}
+              type="button"
               onClick={() => setSelectedOverdue(o.id)}
-              title="点击查看办件详情"
-              className={`border-l-2 px-2 py-1.5 rounded-sm bg-[rgba(22,52,98,0.6)] cursor-pointer transition-all hover:brightness-125 ${
-                o.level === 'overdue' ? 'border-[color:var(--gov-danger)]' : 'border-[color:var(--gov-gold)]'
-              }`}
+              title="查看办件详情"
+              className="gov-btn flex w-full flex-col rounded-md px-2 py-1.5 text-left hover:bg-white/[0.04]"
             >
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] text-[var(--gov-text-primary)] truncate">{o.item}</span>
-                <span
-                  className={`text-[10px] font-bold shrink-0 ml-2 ${
-                    o.level === 'overdue' ? 'text-[var(--gov-danger)]' : 'text-[var(--gov-gold-soft)]'
-                  }`}
-                >
+              <div className="flex min-w-0 items-center justify-between gap-2">
+                <span className="min-w-0 truncate text-[13px] text-[var(--gov-text-primary)]">{o.item}</span>
+                <span className={`shrink-0 text-xs tabular-nums ${o.level === 'overdue' ? 'text-[var(--gov-danger)]' : 'text-[var(--gov-warning)]'}`}>
                   {o.deadlineText}
                 </span>
               </div>
-              <div className="flex items-center justify-between mt-0.5 text-[9px] text-[var(--gov-text-muted)]">
-                <span>{o.id}</span>
-                <span>{o.window}</span>
+              <div className="mt-0.5 flex items-center justify-between gap-2 text-xs text-[var(--gov-text-muted)]">
+                <span className="truncate font-mono tabular-nums">{o.id}</span>
+                <span className="shrink-0">{o.window}</span>
               </div>
-            </div>
+            </button>
           ))}
           {overdue.length === 0 && (
-            <div className="h-full flex items-center justify-center text-xs text-[var(--gov-success)]">
-              ✓ 无超期与临期承诺件
+            <div className="flex h-full items-center justify-center text-[13px] text-[var(--gov-text-muted)]">
+              无超期与临期承诺件
             </div>
           )}
         </div>
         </QueryState>
       </Card>
 
-      {/* 好差评满意度 */}
-      <Card title="好差评满意度" className="flex-[2.6] min-h-0">
+      <Card title="好差评" className="min-h-0 flex-[2.6]">
         <QueryState query={satisfactionQuery}>
-        <div className="split-row flex h-full space-x-3">
-          <div className="flex flex-col items-center justify-center w-24 shrink-0">
-            <div className="relative w-20 h-20">
-              <svg className="absolute inset-0 w-full h-full -rotate-90">
-                <circle cx="40" cy="40" r="34" fill="transparent" stroke="rgba(124,158,196,0.18)" strokeWidth="4" />
+        <div className="split-row flex h-full gap-3">
+          <div className="flex w-24 shrink-0 flex-col items-center justify-center">
+            <div className="relative h-20 w-20">
+              <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="34" fill="transparent" stroke="rgba(255,255,255,0.08)" strokeWidth="4" />
                 <circle
                   cx="40" cy="40" r="34"
-                  fill="transparent" stroke="#43cf8c" strokeWidth="4"
-                  strokeDasharray="213.6"
-                  strokeDashoffset={213.6 - (213.6 * satisfaction.todayRate) / 100}
-                  className="drop-shadow-[0_0_4px_rgba(67,207,140,0.5)]"
+                  fill="transparent" stroke={theme.accent} strokeWidth="4"
+                  strokeDasharray={ring}
+                  strokeDashoffset={ring - (ring * todayRate) / 100}
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-base font-bold text-white">{satisfaction.todayRate}%</span>
-                <span className="text-[8px] text-[var(--gov-text-muted)]">今日满意率</span>
+                <span className="font-mono text-sm font-semibold tabular-nums text-[var(--gov-text-primary)]">{todayRate}%</span>
+                <span className="text-xs text-[var(--gov-text-muted)]">今日</span>
               </div>
             </div>
-            <div className="text-[9px] text-[var(--gov-text-muted)] mt-1">本周 {satisfaction.weekRate}% · {totalReviews} 评</div>
+            <div className="mt-1 text-center text-xs tabular-nums text-[var(--gov-text-muted)]">
+              本周 {satisfaction.weekRate}% · {totalReviews.toLocaleString('zh-CN')} 条
+            </div>
           </div>
-          <div className="flex-1 flex flex-col min-w-0">
-            <div className="text-[10px] text-[var(--gov-text-secondary)] mb-1 tracking-[0.15em]">差评明细（限期整改）</div>
-            <div className="flex-1 overflow-y-auto custom-scrollbar space-y-1.5">
+          <div className="flex min-w-0 flex-1 flex-col">
+            <div className="mb-1 text-[13px] tracking-normal text-[var(--gov-text-secondary)]">差评，待整改</div>
+            <div className="custom-scrollbar flex-1 space-y-2 overflow-y-auto">
               {satisfaction.badReviews.length === 0 && (
-                <div className="text-[10px] text-[var(--gov-success)]">✓ 今日暂无差评</div>
+                <div className="text-[13px] text-[var(--gov-text-muted)]">今日暂无差评</div>
               )}
               {satisfaction.badReviews.map((r, i) => (
-                <div key={i} className="bg-[rgba(242,101,92,0.16)] border-l-2 border-[color:var(--gov-danger)] px-2 py-1 rounded-sm">
-                  <div className="flex justify-between text-[10px]">
-                    <span className="text-[var(--gov-text-primary)]">{r.item}</span>
-                    <span className="text-[var(--gov-text-muted)] font-mono">{r.time}</span>
+                <div key={`${r.time}-${i}`} className="min-w-0 border-b border-white/[0.06] pb-1.5">
+                  <div className="flex justify-between gap-2 text-[13px]">
+                    <span className="min-w-0 truncate text-[var(--gov-text-primary)]">{r.item}</span>
+                    <span className="shrink-0 font-mono text-xs tabular-nums text-[var(--gov-text-muted)]">{r.time}</span>
                   </div>
-                  <div className="flex justify-between text-[9px] text-[var(--gov-text-muted)] mt-0.5">
-                    <span className="text-[var(--gov-danger)]">{r.reason}</span>
-                    <span>{r.window}</span>
+                  <div className="mt-0.5 flex justify-between gap-2 text-xs">
+                    <span className="min-w-0 truncate text-[var(--gov-danger)]">{r.reason}</span>
+                    <span className="shrink-0 text-[var(--gov-text-muted)]">{r.window}</span>
                   </div>
                 </div>
               ))}
@@ -135,11 +131,10 @@ export function EfficiencyPanel() {
         </QueryState>
       </Card>
 
-      {/* 窗口人员绩效 */}
-      <Card title="窗口人员绩效" className="flex-[2.4] min-h-0">
+      <Card title="窗口人员" className="min-h-0 flex-[2.4]">
         <QueryState query={staffQuery}>
-        <div className="chart-frame h-full relative">
-          <ChartLegend items={[{ label: '接待数', color: '#55a6e8' }, { label: '满意度%', color: '#f0b95a' }]} />
+        <div className="chart-frame relative h-full">
+          <ChartLegend items={[{ label: '接待数', color: theme.series[0] }, { label: '满意率 %', color: theme.accent }]} />
           <EChart option={{
             grid: { ...chartGrid(narrow ? 40 : 0), right: 8 },
             tooltip: axisTooltip,
@@ -147,25 +142,24 @@ export function EfficiencyPanel() {
             yAxis: [
               valueAxis(),
               valueAxis({
-                min: 95,
+                scale: true,
+                min: 90,
                 max: 100,
-                interval: 5,
                 position: 'right',
-                axisLabel: { color: '#f0b95a', fontSize: 10 },
                 splitLine: { show: false },
               }),
             ],
             series: [
-              barSeries('接待数', staff.map(d => d['接待数']), '#55a6e8', 8),
+              barSeries('接待数', staff.map(d => d['接待数']), theme.series[0], 8),
               {
-                name: '满意度',
+                name: '满意率',
                 type: 'line',
                 yAxisIndex: 1,
                 data: staff.map(d => d['满意度']),
                 symbol: 'circle',
-                symbolSize: 6,
-                lineStyle: { width: 2, color: '#f0b95a' },
-                itemStyle: { color: '#f0b95a' },
+                symbolSize: 4,
+                lineStyle: { width: 1.5, color: theme.accent },
+                itemStyle: { color: theme.accent },
               },
             ],
           }} />
@@ -173,50 +167,49 @@ export function EfficiencyPanel() {
         </QueryState>
       </Card>
 
-      {/* 承诺件详情弹窗 */}
       {selectedOverdue && (() => {
         const o = overdue.find(x => x.id === selectedOverdue);
         if (!o) return null;
         const isOver = o.level === 'overdue';
+        const sent = urged.has(o.id);
         return (
-          <Modal title="承诺件详情" subtitle={o.id} onClose={() => setSelectedOverdue(null)} width={500}>
+          <Modal title={o.item} subtitle={o.id} onClose={() => setSelectedOverdue(null)} width={500}>
             <QueryState query={overdueQuery}>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-semibold text-[var(--gov-text-primary)]">{o.item}</span>
-              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-sm shrink-0 ml-2 ${
-                isOver ? 'bg-[rgba(242,101,92,0.2)] text-[var(--gov-danger)]' : 'bg-[rgba(240,185,90,0.16)] text-[var(--gov-gold-soft)]'
-              }`}>
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <span className="text-[13px] text-[var(--gov-text-secondary)]">{o.window}</span>
+              <span className={`shrink-0 text-xs tabular-nums ${isOver ? 'text-[var(--gov-danger)]' : 'text-[var(--gov-warning)]'}`}>
                 {o.deadlineText}
               </span>
             </div>
-            <div className="space-y-1.5 text-[11px]">
+            <dl className="space-y-1.5 text-[13px]">
               {[
                 { label: '申请人', value: o.applicant },
-                { label: '受理时间', value: o.acceptedAt },
+                { label: '受理时间', value: o.acceptedAt, mono: true },
                 { label: '承诺期限', value: `${o.promiseDays} 个工作日` },
                 { label: '受理窗口', value: o.window },
                 { label: '当前环节', value: `${o.currentStep}（${o.stepOwner}）` },
               ].map(r => (
-                <div key={r.label} className="flex justify-between">
-                  <span className="text-[var(--gov-text-muted)] shrink-0">{r.label}</span>
-                  <span className="text-[var(--gov-text-primary)] text-right ml-4">{r.value}</span>
+                <div key={r.label} className="flex justify-between gap-4">
+                  <dt className="shrink-0 text-[var(--gov-text-muted)]">{r.label}</dt>
+                  <dd className={`min-w-0 text-right text-[var(--gov-text-primary)] ${r.mono ? 'font-mono text-xs tabular-nums' : ''}`}>{r.value}</dd>
                 </div>
               ))}
-              <div className="flex justify-between !mt-2.5">
-                <span className="text-[var(--gov-text-muted)] shrink-0">滞留原因</span>
-                <span className="text-[var(--gov-danger)] text-right ml-4">{o.delayReason}</span>
+              <div className="flex justify-between gap-4 pt-1">
+                <dt className="shrink-0 text-[var(--gov-text-muted)]">滞留原因</dt>
+                <dd className="min-w-0 text-right text-[var(--gov-danger)]">{o.delayReason}</dd>
               </div>
-            </div>
+            </dl>
             <button
+              type="button"
               onClick={() => setUrged(prev => new Set(prev).add(o.id))}
-              disabled={urged.has(o.id)}
-              className={`w-full mt-4 py-1.5 text-xs rounded-sm border transition-colors ${
-                urged.has(o.id)
-                  ? 'border-[color:var(--gov-success)] text-[var(--gov-success)] cursor-default'
-                  : 'border-[color:var(--gov-danger)] text-[var(--gov-danger)] hover:bg-[rgba(242,101,92,0.14)]'
+              disabled={sent}
+              className={`gov-btn mt-4 w-full rounded-md border py-1.5 text-[13px] ${
+                sent
+                  ? 'border-white/[0.12] text-[var(--gov-text-muted)]'
+                  : 'border-[var(--gov-danger)] text-[var(--gov-danger)] hover:bg-[rgba(224,138,132,0.08)]'
               }`}
             >
-              {urged.has(o.id) ? '✓ 督办通知已发送至责任科室' : '发送督办通知'}
+              {sent ? '督办通知已发送至责任科室' : '发送督办通知'}
             </button>
             </QueryState>
           </Modal>

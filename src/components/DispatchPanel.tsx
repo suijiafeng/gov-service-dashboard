@@ -4,15 +4,16 @@ import { Modal } from './Modal';
 import { QueryState } from './QueryState';
 import { combineQueries, useQueueData, useWindowMatrix, useDeviceStats, useOverdueItems, useWindowDetails } from '../hooks/useData';
 import { estimateWaitMinutes, queueLevel, evaluateAlerts, AlertItem } from '../utils/alertEngine';
+import { theme } from '../theme';
 
 const STATUS_META = {
-  busy: { label: '服务中', color: '#55a6e8', bg: 'rgba(46,123,209,0.55)' },
-  idle: { label: '空闲', color: '#43cf8c', bg: 'rgba(67,207,140,0.25)' },
-  paused: { label: '暂停', color: '#f0b95a', bg: 'rgba(240,185,90,0.26)' },
-  away: { label: '离席', color: '#f2655c', bg: 'rgba(242,101,92,0.25)' },
+  busy: { label: '服务中', color: theme.textSecondary },
+  idle: { label: '空闲', color: theme.accent },
+  paused: { label: '暂停', color: theme.warning },
+  away: { label: '离席', color: theme.danger },
 } as const;
 
-const LEVEL_COLOR = { red: 'var(--gov-danger)', yellow: 'var(--gov-gold)' } as const;
+const LEVEL_COLOR = { red: 'var(--gov-danger)', yellow: 'var(--gov-warning)' } as const;
 
 export function useAlerts() {
   const queues = useQueueData();
@@ -43,112 +44,106 @@ export function DispatchPanel() {
   const pendingAlerts = alerts.filter(a => !acknowledged.has(a.key));
 
   return (
-    <div className="side-panel flex flex-col space-y-4 w-[28%] h-full pr-2">
+    <div className="side-panel flex h-full w-[28%] min-w-0 flex-col gap-3 pr-2">
 
-      {/* 队列看板 */}
-      <Card title="业务队列实时看板" className="flex-[3] min-h-0">
+      <Card title="业务队列" className="min-h-0 flex-[3]">
         <QueryState query={queueQuery}>
-        <div className="flex flex-col justify-between h-full gap-2 py-1">
+        <div className="flex h-full flex-col justify-between gap-1.5 py-0.5">
           {queues.map(q => {
             const wait = estimateWaitMinutes(q);
             const level = queueLevel(q);
-            const barColor = level === 'red' ? '#f2655c' : level === 'yellow' ? '#f0b95a' : '#55a6e8';
+            const barColor = level === 'red' ? theme.danger : level === 'yellow' ? theme.warning : theme.series[1];
+            const waitLabel = Number.isFinite(wait) ? `约 ${wait} 分钟` : '暂无开放窗口';
             return (
-              <div
+              <button
                 key={q.type}
+                type="button"
                 onClick={() => setFocusBusiness(f => (f === q.type ? null : q.type))}
-                title="点击联动下方窗口矩阵"
-                className={`flex items-center space-x-2 cursor-pointer rounded-sm px-1 -mx-1 transition-colors ${
-                  focusBusiness === q.type ? 'bg-[rgba(120,175,235,0.16)]' : 'hover:bg-[rgba(120,175,235,0.08)]'
+                title="点击后只高亮该业务的窗口，再点一次恢复"
+                className={`gov-btn flex items-center gap-2 rounded-md px-1.5 py-0.5 text-left ${
+                  focusBusiness === q.type ? 'bg-white/[0.06]' : 'hover:bg-white/[0.04]'
                 }`}
               >
-                <span className="w-16 text-xs text-[var(--gov-text-secondary)] shrink-0">{q.type}</span>
-                <div className="flex-1 min-w-0 h-3 bg-[rgba(120,175,235,0.16)] rounded-sm overflow-hidden">
+                <span className={`w-[4.5rem] shrink-0 truncate text-[13px] ${focusBusiness === q.type ? 'text-[var(--gov-accent)]' : 'text-[var(--gov-text-secondary)]'}`}>{q.type}</span>
+                <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-sm bg-white/[0.06]">
                   <div
-                    className="h-full rounded-sm transition-all duration-700"
-                    style={{ width: `${(q.waiting / maxWaiting) * 100}%`, backgroundColor: barColor, boxShadow: level ? `0 0 8px ${barColor}` : undefined }}
+                    className="h-full rounded-sm transition-[width] duration-150 ease-out"
+                    style={{ width: `${(q.waiting / maxWaiting) * 100}%`, backgroundColor: barColor }}
                   />
                 </div>
-                <span className="w-12 text-right font-mono text-base font-bold" style={{ color: level ? barColor : '#f2f7fd' }}>
-                  {q.waiting}<span className="text-[9px] text-[var(--gov-text-muted)] font-normal"> 人</span>
+                <span className="w-12 shrink-0 text-right font-mono text-sm tabular-nums text-[var(--gov-text-primary)]">
+                  {q.waiting}<span className="text-xs font-sans text-[var(--gov-text-muted)]"> 人</span>
                 </span>
-                <span className={`w-16 text-right text-[11px] ${level === 'red' ? 'text-[var(--gov-danger)] font-bold' : 'text-[var(--gov-text-muted)]'}`}>
-                  约 {wait} 分钟
+                <span className={`w-[5.5rem] shrink-0 text-right text-xs tabular-nums ${level === 'red' ? 'text-[var(--gov-danger)]' : 'text-[var(--gov-text-muted)]'}`}>
+                  {waitLabel}
                 </span>
-              </div>
+              </button>
             );
           })}
-          <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1 pt-1 text-[9px] text-[var(--gov-text-muted)]">
-            <span className="flex items-center"><span className="w-2 h-2 rounded-full bg-[#55a6e8] mr-1" />正常</span>
-            <span className="flex items-center"><span className="w-2 h-2 rounded-full bg-[#f0b95a] mr-1" />繁忙 &gt;20人/30min</span>
-            <span className="flex items-center"><span className="w-2 h-2 rounded-full bg-[#f2655c] mr-1" />积压 &gt;35人/45min</span>
+          <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1 pt-1 text-xs text-[var(--gov-text-muted)]">
+            <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: theme.series[1] }} />正常</span>
+            <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: theme.warning }} />超过 20 人或 30 分钟</span>
+            <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: theme.danger }} />超过 35 人或 45 分钟</span>
           </div>
         </div>
         </QueryState>
       </Card>
 
-      {/* 窗口状态矩阵 */}
-      <Card title={focusBusiness ? `窗口状态矩阵 · ${focusBusiness}` : '窗口状态矩阵'} className="flex-[3.5] min-h-0">
+      <Card title={focusBusiness ? `窗口状态 · ${focusBusiness}` : '窗口状态'} className="min-h-0 flex-[3.5]">
         <QueryState query={windowQuery}>
-        <div className="window-grid grid grid-cols-4 gap-1.5 h-full py-1">
+        <div className="window-grid grid h-full grid-cols-4 gap-1.5 py-0.5">
           {windows.map(w => {
             const meta = STATUS_META[w.status];
+            const dimmed = Boolean(focusBusiness && w.business !== focusBusiness);
             return (
-              <div
+              <button
                 key={w.id}
+                type="button"
                 onClick={() => setSelectedWindow(w.id)}
-                title="点击查看窗口详情"
-                className={`flex flex-col items-center justify-center rounded-sm border text-center px-1 cursor-pointer transition-all duration-300 hover:brightness-125 ${
-                  focusBusiness && w.business !== focusBusiness ? 'opacity-25' : ''
+                title="查看窗口详情"
+                className={`gov-btn flex min-w-0 flex-col items-center justify-center rounded-md border border-white/[0.08] bg-white/[0.02] px-1 py-1 text-center hover:bg-white/[0.05] ${
+                  dimmed ? 'opacity-30' : ''
                 }`}
-                style={{ backgroundColor: meta.bg, borderColor: meta.color }}
               >
-                <span className="text-base font-bold font-mono text-white">{w.id}</span>
-                <span className="text-[10px] leading-tight text-[var(--gov-text-secondary)]">{w.business}</span>
-                <span className="text-[10px] font-semibold" style={{ color: meta.color }}>
-                  {meta.label}{w.status === 'busy' && w.elapsed != null ? ` ${w.elapsed}'` : ''}
+                <span className="font-mono text-[13px] tabular-nums text-[var(--gov-text-primary)]">{w.id}</span>
+                <span className="max-w-full truncate text-xs text-[var(--gov-text-secondary)]">{w.business}</span>
+                <span className="text-xs" style={{ color: meta.color }}>
+                  {meta.label}{w.status === 'busy' && w.elapsed != null ? ` ${w.elapsed} 分钟` : ''}
                 </span>
-              </div>
+              </button>
             );
           })}
         </div>
         </QueryState>
       </Card>
 
-      {/* 积压预警与处置 */}
-      <Card title={alertsState.loading ? '预警处置（待处理 …）' : alertsState.error ? '预警处置' : `预警处置（待处理 ${pendingAlerts.length}）`} className="flex-[3.5] min-h-0">
+      <Card title={alertsState.loading ? '预警处置' : alertsState.error ? '预警处置' : `预警处置 · 待处理 ${pendingAlerts.length}`} className="min-h-0 flex-[3.5]">
         <QueryState query={alertsState} ignoreEmpty>
-        <div className="h-full overflow-y-auto custom-scrollbar space-y-2 pr-1">
+        <div className="custom-scrollbar h-full space-y-2 overflow-y-auto pr-1">
           {pendingAlerts.length === 0 && (
-            <div className="h-full flex items-center justify-center text-xs text-[var(--gov-success)]">
-              ✓ 当前无待处理预警，大厅运行平稳
+            <div className="flex h-full items-center justify-center text-[13px] text-[var(--gov-text-muted)]">
+              当前无待处理预警，大厅运行平稳
             </div>
           )}
           {pendingAlerts.map(a => (
-            <div
-              key={a.key}
-              className="border-l-2 bg-[rgba(22,52,98,0.6)] px-2 py-1.5 rounded-sm"
-              style={{ borderColor: LEVEL_COLOR[a.level] }}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-1.5 min-w-0">
-                  <span
-                    className="text-[9px] px-1 rounded-sm shrink-0 font-bold"
-                    style={{ backgroundColor: LEVEL_COLOR[a.level], color: '#0a1f39' }}
-                  >
+            <div key={a.key} className="rounded-md bg-white/[0.03] px-2 py-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span className="shrink-0 text-xs font-medium" style={{ color: LEVEL_COLOR[a.level] }}>
                     {a.source}
                   </span>
-                  <span className="text-[11px] text-[var(--gov-text-primary)] truncate">{a.message}</span>
+                  <span className="truncate text-[13px] text-[var(--gov-text-primary)]">{a.message}</span>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setAcknowledged(prev => new Set(prev).add(a.key))}
-                  className="shrink-0 ml-2 text-[9px] px-1.5 py-0.5 border border-[color:var(--gov-border)] rounded-sm text-[var(--gov-text-secondary)] hover:border-[color:var(--gov-gold)] hover:text-white transition-colors"
+                  className="gov-btn ml-1 shrink-0 rounded-md border border-white/[0.12] px-1.5 py-0.5 text-xs text-[var(--gov-text-secondary)] hover:bg-white/[0.06] hover:text-[var(--gov-text-primary)]"
                 >
                   确认处理
                 </button>
               </div>
               {a.suggestion && (
-                <div className="text-[10px] text-[var(--gov-gold-soft)] mt-1 pl-0.5">→ {a.suggestion}</div>
+                <p className="mt-1 text-xs leading-snug text-[var(--gov-warning)]">{a.suggestion}</p>
               )}
             </div>
           ))}
@@ -156,7 +151,6 @@ export function DispatchPanel() {
         </QueryState>
       </Card>
 
-      {/* 窗口详情弹窗 */}
       {selectedWindow && (() => {
         const w = windows.find(x => x.id === selectedWindow);
         const d = windowDetails.find(x => x.id === selectedWindow);
@@ -164,50 +158,52 @@ export function DispatchPanel() {
         return (
           <Modal
             title={w ? `${w.id} 号窗口` : `${selectedWindow} 号窗口`}
-            subtitle={w && d ? `${w.business} · 坐席 ${d.staff}` : undefined}
+            subtitle={w && d ? `${w.business} · ${d.staff}` : undefined}
             onClose={() => setSelectedWindow(null)}
             width={480}
           >
             <QueryState query={windowDetailsQuery}>
             {!w || !d || !meta ? (
-              <div className="py-6 text-center text-xs text-[var(--gov-text-muted)]">暂无该窗口详情</div>
+              <div className="py-6 text-center text-[13px] text-[var(--gov-text-muted)]">暂无该窗口详情</div>
             ) : (
             <>
-            <div className="stat-grid-4 grid grid-cols-3 gap-2 mb-3">
+            <div className="stat-grid-4 mb-3 grid grid-cols-3 gap-px overflow-hidden rounded-md bg-white/[0.08]">
               {[
-                { label: '今日接待', value: `${d.todayServed} 件` },
-                { label: '平均办理', value: `${d.avgMinutes} 分钟` },
-                { label: '窗口满意率', value: `${d.satisfaction}%` },
+                { label: '今日接待', value: d.todayServed.toLocaleString('zh-CN'), unit: '件' },
+                { label: '平均办理', value: String(d.avgMinutes), unit: '分钟' },
+                { label: '窗口满意率', value: String(d.satisfaction), unit: '%' },
               ].map(t => (
-                <div key={t.label} className="flex flex-col items-center justify-center bg-[rgba(22,52,98,0.6)] border border-[color:var(--gov-border)] rounded-sm py-2">
-                  <span className="text-base font-bold font-mono text-white">{t.value}</span>
-                  <span className="text-[9px] text-[var(--gov-text-secondary)] mt-0.5">{t.label}</span>
+                <div key={t.label} className="flex flex-col items-center justify-center bg-[var(--gov-bg-panel-strong)] px-2 py-2">
+                  <span className="font-mono text-base tabular-nums text-[var(--gov-text-primary)]">
+                    {t.value}<span className="ml-1 font-sans text-xs text-[var(--gov-text-muted)]">{t.unit}</span>
+                  </span>
+                  <span className="mt-0.5 text-xs text-[var(--gov-text-secondary)]">{t.label}</span>
                 </div>
               ))}
             </div>
-            <div className="space-y-1.5 text-[11px]">
-              <div className="flex justify-between">
-                <span className="text-[var(--gov-text-muted)]">当前状态</span>
-                <span className="font-semibold" style={{ color: meta.color }}>
-                  {meta.label}{w.status === 'busy' && w.elapsed != null ? `（已用时 ${w.elapsed} 分钟）` : ''}
-                </span>
+            <dl className="space-y-1.5 text-[13px]">
+              <div className="flex justify-between gap-3">
+                <dt className="text-[var(--gov-text-muted)]">当前状态</dt>
+                <dd className="text-right" style={{ color: meta.color }}>
+                  {meta.label}{w.status === 'busy' && w.elapsed != null ? `，已用时 ${w.elapsed} 分钟` : ''}
+                </dd>
               </div>
               {w.item && (
-                <div className="flex justify-between">
-                  <span className="text-[var(--gov-text-muted)]">正在办理</span>
-                  <span className="text-[var(--gov-text-primary)]">{w.item}</span>
+                <div className="flex justify-between gap-3">
+                  <dt className="shrink-0 text-[var(--gov-text-muted)]">正在办理</dt>
+                  <dd className="min-w-0 truncate text-right text-[var(--gov-text-primary)]">{w.item}</dd>
                 </div>
               )}
-              <div className="flex justify-between">
-                <span className="text-[var(--gov-text-muted)]">可受理业务</span>
-                <span className="text-[var(--gov-text-primary)]">{d.authorizedBusinesses.join(' / ')}</span>
+              <div className="flex justify-between gap-3">
+                <dt className="shrink-0 text-[var(--gov-text-muted)]">可受理业务</dt>
+                <dd className="min-w-0 text-right text-[var(--gov-text-primary)]">{d.authorizedBusinesses.join(' / ')}</dd>
               </div>
-              {w.status === 'busy' && (w.elapsed ?? 0) > 20 && (
-                <div className="text-[10px] text-[var(--gov-gold-soft)] bg-[rgba(240,185,90,0.1)] border-l-2 border-[color:var(--gov-gold)] px-2 py-1 rounded-sm !mt-3">
-                  该件办理已超 20 分钟，如属复杂件可引导后续市民至综合窗口分流
-                </div>
-              )}
-            </div>
+            </dl>
+            {w.status === 'busy' && (w.elapsed ?? 0) > 20 && (
+              <p className="mt-3 text-[13px] leading-snug text-[var(--gov-warning)]">
+                该件办理已超过 20 分钟。如属复杂件，可引导后续市民到综合窗口分流。
+              </p>
+            )}
             </>
             )}
             </QueryState>

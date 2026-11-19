@@ -8,15 +8,11 @@ interface CardProps {
 
 export function Card({ title, children, className = '' }: CardProps) {
   return (
-    <div className={`card-shell relative flex flex-col bg-[var(--gov-bg-panel)] border border-[color:var(--gov-border)] backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_10px_30px_rgba(5,15,29,0.18)] rounded-sm ${className}`}>
-{/* Header */}
-      <div className="flex items-center px-4 py-2 bg-gradient-to-r from-[rgba(46,123,209,0.26)] via-[rgba(46,123,209,0.1)] to-transparent relative border-l-2 border-[color:var(--gov-gold)]">
-        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-[var(--gov-border-strong)] via-[var(--gov-border)] to-transparent" />
-        <h2 className="text-[var(--gov-text-primary)] font-semibold tracking-[0.12em] min-[1101px]:tracking-[0.28em] text-sm min-[1101px]:text-base">{title}</h2>
+    <div className={`card-shell relative flex min-h-0 flex-col overflow-hidden rounded-lg border border-white/[0.08] bg-[var(--gov-bg-panel)] ${className}`}>
+      <div className="flex h-9 shrink-0 items-center border-b border-white/[0.06] px-3">
+        <h2 className="truncate text-sm font-semibold tracking-normal text-[var(--gov-text-primary)]">{title}</h2>
       </div>
-      
-      {/* Content */}
-      <div className="card-body flex-1 p-3 overflow-hidden min-w-0">
+      <div className="card-body min-h-0 min-w-0 flex-1 overflow-hidden p-3">
         {children}
       </div>
     </div>

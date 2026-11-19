@@ -1,12 +1,14 @@
 import EChartsReactCore from 'echarts-for-react/esm/core';
 import type { EChartsCoreOption } from 'echarts/core';
 import { echarts } from '../lib/echarts';
+import { axisFont, theme } from '../theme';
 
 export const axisTooltip = {
   trigger: 'axis' as const,
-  backgroundColor: 'rgba(12,35,68,0.94)',
-  borderColor: '#7fb3e8',
-  textStyle: { color: '#f2f7fd', fontSize: 12 },
+  backgroundColor: theme.surface,
+  borderColor: theme.border,
+  borderWidth: 1,
+  textStyle: { color: theme.text, fontSize: 12 },
 };
 
 type AxisTipParam = {
@@ -31,10 +33,10 @@ export function axisValueTooltip(format: (axisLabel: string, value: number) => s
 
 export function chartGrid(rotate: number) {
   return {
-    top: 28,
+    top: 32,
     right: 8,
     left: 4,
-    bottom: rotate ? 16 : 2,
+    bottom: rotate ? 20 : 4,
     containLabel: true,
   };
 }
@@ -45,7 +47,12 @@ export function categoryAxis(labels: Array<string | number>, rotate = 0) {
     data: labels,
     axisLine: { show: false },
     axisTick: { show: false },
-    axisLabel: { color: '#9ab6d6', fontSize: 10, rotate, interval: 0 },
+    axisLabel: {
+      color: theme.textMuted,
+      fontSize: 11,
+      rotate,
+      interval: 0,
+    },
   };
 }
 
@@ -54,8 +61,8 @@ export function valueAxis(overrides: Record<string, unknown> = {}) {
     type: 'value' as const,
     axisLine: { show: false },
     axisTick: { show: false },
-    axisLabel: { color: '#9ab6d6', fontSize: 10 },
-    splitLine: { lineStyle: { color: 'rgba(140, 180, 225, 0.2)', type: 'dashed' } },
+    axisLabel: { color: theme.textMuted, fontSize: 11, fontFamily: axisFont },
+    splitLine: { show: true, lineStyle: { color: theme.grid, type: 'dashed' as const } },
     ...overrides,
   };
 }
@@ -72,13 +79,13 @@ export function areaSeries(name: string, data: number[], color: string) {
   return {
     name,
     type: 'line' as const,
-    smooth: true,
+    smooth: false,
     data,
     symbol: 'none',
-    lineStyle: { width: 2, color },
+    lineStyle: { width: 1.5, color },
     areaStyle: {
       color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-        { offset: 0, color: withAlpha(color, 0.32) },
+        { offset: 0, color: withAlpha(color, 0.12) },
         { offset: 1, color: withAlpha(color, 0) },
       ]),
     },
@@ -105,7 +112,7 @@ export function EChart({
   return (
     <EChartsReactCore
       echarts={echarts}
-      option={option}
+      option={{ ...option, animation: false }}
       className={className}
       style={{ width: '100%', height: '100%' }}
       opts={{ renderer: 'canvas' }}

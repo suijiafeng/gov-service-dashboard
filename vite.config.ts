@@ -14,6 +14,15 @@ const __dirname = path.dirname(__filename);
 // https://vite.dev/config/
 export default defineConfig({
   base: "/gov-service-dashboard/",
+  // 默认 localhost 在部分环境只绑 [::1]，文档里的 127.0.0.1 会连不上。
+  server: {
+    host: "127.0.0.1",
+    port: 5173,
+  },
+  preview: {
+    host: "127.0.0.1",
+    port: 4173,
+  },
   plugins: [react(), tailwindcss(), viteSingleFile()],
   resolve: {
     alias: {

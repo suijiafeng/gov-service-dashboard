@@ -17,22 +17,22 @@ export function QueryState({
 
   if (state.loading) {
     return (
-      <div className="query-state h-full min-h-[120px] flex flex-col items-center justify-center gap-2 text-[var(--gov-text-muted)]" role="status">
-        <span className="w-5 h-5 rounded-full border-2 border-[color:var(--gov-border)] border-t-[var(--gov-blue-soft)] animate-spin" />
-        <span className="text-xs tracking-[0.18em]">数据加载中</span>
+      <div className="query-state flex h-full min-h-[120px] flex-col items-center justify-center gap-2 text-[var(--gov-text-muted)]" role="status">
+        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/15 border-t-[var(--gov-accent)]" />
+        <span className="text-[13px] tracking-normal">数据加载中</span>
       </div>
     );
   }
 
   if (state.error) {
     return (
-      <div className="query-state h-full min-h-[120px] flex flex-col items-center justify-center gap-2 px-3 text-center" role="alert">
-        <span className="text-xs text-[var(--gov-danger)]">数据加载失败</span>
-        <span className="text-[10px] text-[var(--gov-text-muted)] max-w-[240px] break-words">{state.error.message}</span>
+      <div className="query-state flex h-full min-h-[120px] flex-col items-center justify-center gap-2 px-3 text-center" role="alert">
+        <span className="text-[13px] text-[var(--gov-danger)]">数据加载失败</span>
+        <span className="max-w-[280px] break-words text-[13px] text-[var(--gov-text-muted)]">{state.error.message}</span>
         <button
           type="button"
           onClick={state.retry}
-          className="mt-1 px-3 py-1 text-xs border border-[color:var(--gov-border-strong)] text-[var(--gov-text-primary)] rounded-sm hover:bg-[rgba(46,123,209,0.35)] transition-colors"
+          className="gov-btn mt-1 rounded-md border border-white/[0.14] px-3 py-1 text-[13px] text-[var(--gov-text-primary)] hover:bg-white/[0.06]"
         >
           重试
         </button>
@@ -42,7 +42,7 @@ export function QueryState({
 
   if (!ignoreEmpty && state.empty) {
     return (
-      <div className="query-state h-full min-h-[120px] flex items-center justify-center text-xs tracking-[0.16em] text-[var(--gov-text-muted)]">
+      <div className="query-state flex h-full min-h-[120px] items-center justify-center text-[13px] tracking-normal text-[var(--gov-text-muted)]">
         暂无数据
       </div>
     );
