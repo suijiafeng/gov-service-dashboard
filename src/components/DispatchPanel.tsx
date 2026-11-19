@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Card } from './Card';
 import { Modal } from './Modal';
-import { useQueueData, useWindowMatrix, useDeviceStats, useOverdueItems, useWindowDetails } from '../hooks/useData';
+import { QueryState } from './QueryState';
+import { combineQueries, useQueueData, useWindowMatrix, useDeviceStats, useOverdueItems, useWindowDetails } from '../hooks/useData';
 import { estimateWaitMinutes, queueLevel, evaluateAlerts, AlertItem } from '../utils/alertEngine';
 
 const STATUS_META = {
@@ -13,22 +14,27 @@ const STATUS_META = {
 
 const LEVEL_COLOR = { red: 'var(--gov-danger)', yellow: 'var(--gov-gold)' } as const;
 
-export function useAlerts(): AlertItem[] {
-  const { data: queues } = useQueueData();
-  const { data: windows } = useWindowMatrix();
-  const { data: deviceStats } = useDeviceStats();
-  const { data: overdue } = useOverdueItems();
-  return useMemo(
-    () => evaluateAlerts(queues, windows, deviceStats.devices, overdue),
-    [queues, windows, deviceStats, overdue],
+export function useAlerts() {
+  const queues = useQueueData();
+  const windows = useWindowMatrix();
+  const devices = useDeviceStats();
+  const overdue = useOverdueItems();
+  const alerts = useMemo(
+    () => evaluateAlerts(queues.data, windows.data, devices.data.devices, overdue.data),
+    [queues.data, windows.data, devices.data, overdue.data],
   );
+  return { alerts, ...combineQueries([queues, windows, devices, overdue]) };
 }
 
 export function DispatchPanel() {
-  const { data: queues } = useQueueData();
-  const { data: windows } = useWindowMatrix();
-  const { data: windowDetails } = useWindowDetails();
-  const alerts = useAlerts();
+  const queueQuery = useQueueData();
+  const windowQuery = useWindowMatrix();
+  const windowDetailsQuery = useWindowDetails();
+  const alertsState = useAlerts();
+  const queues = queueQuery.data;
+  const windows = windowQuery.data;
+  const windowDetails = windowDetailsQuery.data;
+  const alerts: AlertItem[] = alertsState.alerts;
   const [acknowledged, setAcknowledged] = useState<Set<string>>(new Set());
   const [selectedWindow, setSelectedWindow] = useState<string | null>(null);
   const [focusBusiness, setFocusBusiness] = useState<string | null>(null);
@@ -37,11 +43,12 @@ export function DispatchPanel() {
   const pendingAlerts = alerts.filter(a => !acknowledged.has(a.key));
 
   return (
-    <div className="flex flex-col space-y-4 w-[28%] h-full pr-2">
+    <div className="side-panel flex flex-col space-y-4 w-[28%] h-full pr-2">
 
       {/* 队列看板 */}
       <Card title="业务队列实时看板" className="flex-[3] min-h-0">
-        <div className="flex flex-col justify-between h-full py-1">
+        <QueryState query={queueQuery}>
+        <div className="flex flex-col justify-between h-full gap-2 py-1">
           {queues.map(q => {
             const wait = estimateWaitMinutes(q);
             const level = queueLevel(q);
@@ -56,7 +63,7 @@ export function DispatchPanel() {
                 }`}
               >
                 <span className="w-16 text-xs text-[var(--gov-text-secondary)] shrink-0">{q.type}</span>
-                <div className="flex-1 h-3 bg-[rgba(120,175,235,0.16)] rounded-sm overflow-hidden">
+                <div className="flex-1 min-w-0 h-3 bg-[rgba(120,175,235,0.16)] rounded-sm overflow-hidden">
                   <div
                     className="h-full rounded-sm transition-all duration-700"
                     style={{ width: `${(q.waiting / maxWaiting) * 100}%`, backgroundColor: barColor, boxShadow: level ? `0 0 8px ${barColor}` : undefined }}
@@ -71,17 +78,19 @@ export function DispatchPanel() {
               </div>
             );
           })}
-          <div className="flex items-center justify-end space-x-3 pt-1 text-[9px] text-[var(--gov-text-muted)]">
+          <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1 pt-1 text-[9px] text-[var(--gov-text-muted)]">
             <span className="flex items-center"><span className="w-2 h-2 rounded-full bg-[#55a6e8] mr-1" />正常</span>
             <span className="flex items-center"><span className="w-2 h-2 rounded-full bg-[#f0b95a] mr-1" />繁忙 &gt;20人/30min</span>
             <span className="flex items-center"><span className="w-2 h-2 rounded-full bg-[#f2655c] mr-1" />积压 &gt;35人/45min</span>
           </div>
         </div>
+        </QueryState>
       </Card>
 
       {/* 窗口状态矩阵 */}
       <Card title={focusBusiness ? `窗口状态矩阵 · ${focusBusiness}` : '窗口状态矩阵'} className="flex-[3.5] min-h-0">
-        <div className="grid grid-cols-4 gap-1.5 h-full py-1">
+        <QueryState query={windowQuery}>
+        <div className="window-grid grid grid-cols-4 gap-1.5 h-full py-1">
           {windows.map(w => {
             const meta = STATUS_META[w.status];
             return (
@@ -103,10 +112,12 @@ export function DispatchPanel() {
             );
           })}
         </div>
+        </QueryState>
       </Card>
 
       {/* 积压预警与处置 */}
-      <Card title={`预警处置（待处理 ${pendingAlerts.length}）`} className="flex-[3.5] min-h-0">
+      <Card title={alertsState.loading ? '预警处置（待处理 …）' : alertsState.error ? '预警处置' : `预警处置（待处理 ${pendingAlerts.length}）`} className="flex-[3.5] min-h-0">
+        <QueryState query={alertsState} ignoreEmpty>
         <div className="h-full overflow-y-auto custom-scrollbar space-y-2 pr-1">
           {pendingAlerts.length === 0 && (
             <div className="h-full flex items-center justify-center text-xs text-[var(--gov-success)]">
@@ -142,17 +153,27 @@ export function DispatchPanel() {
             </div>
           ))}
         </div>
+        </QueryState>
       </Card>
 
       {/* 窗口详情弹窗 */}
       {selectedWindow && (() => {
         const w = windows.find(x => x.id === selectedWindow);
         const d = windowDetails.find(x => x.id === selectedWindow);
-        if (!w || !d) return null;
-        const meta = STATUS_META[w.status];
+        const meta = w ? STATUS_META[w.status] : null;
         return (
-          <Modal title={`${w.id} 号窗口`} subtitle={`${w.business} · 坐席 ${d.staff}`} onClose={() => setSelectedWindow(null)} width={480}>
-            <div className="grid grid-cols-3 gap-2 mb-3">
+          <Modal
+            title={w ? `${w.id} 号窗口` : `${selectedWindow} 号窗口`}
+            subtitle={w && d ? `${w.business} · 坐席 ${d.staff}` : undefined}
+            onClose={() => setSelectedWindow(null)}
+            width={480}
+          >
+            <QueryState query={windowDetailsQuery}>
+            {!w || !d || !meta ? (
+              <div className="py-6 text-center text-xs text-[var(--gov-text-muted)]">暂无该窗口详情</div>
+            ) : (
+            <>
+            <div className="stat-grid-4 grid grid-cols-3 gap-2 mb-3">
               {[
                 { label: '今日接待', value: `${d.todayServed} 件` },
                 { label: '平均办理', value: `${d.avgMinutes} 分钟` },
@@ -187,6 +208,9 @@ export function DispatchPanel() {
                 </div>
               )}
             </div>
+            </>
+            )}
+            </QueryState>
           </Modal>
         );
       })()}

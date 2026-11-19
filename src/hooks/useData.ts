@@ -1,32 +1,79 @@
 // 自定义 Hooks - 数据获取
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import * as api from '../api';
 
+export interface QueryResult<T> {
+  data: T;
+  loading: boolean;
+  error: Error | null;
+  empty: boolean;
+  retry: () => void;
+}
+
+function isEmptyData(data: unknown): boolean {
+  if (data == null) return true;
+  if (Array.isArray(data)) return data.length === 0;
+  if (typeof data === 'string') return data.trim().length === 0;
+  if (typeof data === 'object') {
+    const values = Object.values(data as Record<string, unknown>);
+    if (values.length === 0) return true;
+    const structural = values.filter(
+      (value) =>
+        Array.isArray(value) ||
+        typeof value === 'string' ||
+        (value != null && typeof value === 'object'),
+    );
+    if (structural.length === 0 || structural.length !== values.length) return false;
+    return structural.every((value) => isEmptyData(value));
+  }
+  return false;
+}
+
+export function combineQueries(
+  queries: Array<Pick<QueryResult<unknown>, 'loading' | 'error' | 'empty' | 'retry'>>,
+) {
+  const error = queries.find((query) => query.error)?.error ?? null;
+  const loading = queries.some((query) => query.loading);
+  return {
+    loading,
+    error,
+    empty: !loading && error == null && queries.every((query) => query.empty),
+    retry: () => {
+      queries.forEach((query) => query.retry());
+    },
+  };
+}
+
 // 通用数据加载 Hook
-function useApiData<T>(fetcher: () => Promise<{ data: T }>, initialValue: T) {
+function useApiData<T>(
+  fetcher: () => Promise<{ data: T }>,
+  initialValue: T,
+  isEmpty: (data: T) => boolean = isEmptyData,
+): QueryResult<T> {
   const [data, setData] = useState<T>(initialValue);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [attempt, setAttempt] = useState(0);
+
+  const retry = useCallback(() => {
+    setAttempt((current) => current + 1);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
 
     const fetchData = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        setLoading(true);
         const response = await fetcher();
-        if (mounted) {
-          setData(response.data);
-          setError(null);
-        }
+        if (!mounted) return;
+        setData(response.data);
       } catch (err) {
-        if (mounted) {
-          setError(err instanceof Error ? err : new Error('Unknown error'));
-        }
+        if (!mounted) return;
+        setError(err instanceof Error ? err : new Error('数据加载失败'));
       } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+        if (mounted) setLoading(false);
       }
     };
 
@@ -35,9 +82,15 @@ function useApiData<T>(fetcher: () => Promise<{ data: T }>, initialValue: T) {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [attempt, fetcher]);
 
-  return { data, loading, error };
+  return {
+    data,
+    loading,
+    error,
+    empty: !loading && error == null && isEmpty(data),
+    retry,
+  };
 }
 
 // ============ 左侧面板 Hooks ============

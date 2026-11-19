@@ -6,41 +6,39 @@ import { CenterPanel } from './components/CenterPanel';
 import { RightPanel } from './components/RightPanel';
 import { DispatchPanel } from './components/DispatchPanel';
 import { EfficiencyPanel } from './components/EfficiencyPanel';
-import bgImage from './assets/bg.jpg';
+import { usePhoneLayout } from './hooks/usePhoneLayout';
+import { CityBackdrop } from './components/CityBackdrop';
 
 // 调度模式：值班长日常运营指挥；汇报模式：领导视察 / 上级检查展示
 export type DashboardMode = 'dispatch' | 'report';
 
 export function App() {
   const [mode, setMode] = useState<DashboardMode>('dispatch');
+  const phone = usePhoneLayout();
 
-  // 初始化 autofit 实现大屏自适应
+  // 1366 / 1920 用 autofit 等比缩放。更窄的平板和手机关掉缩放，改走流式布局，
+  // 否则 1920 稿在 800 宽上会缩成大约 5px 的字。
   useEffect(() => {
+    if (phone) return;
     autofit.init({
-      el: 'body',  // 渲染容器
-      dw: 1920,          // 设计稿宽度
-      dh: 1080,          // 设计稿高度
-      resize: true       // 监听窗口变化
+      el: 'body',
+      dw: 1920,
+      dh: 1080,
+      resize: true,
     });
 
     return () => {
       autofit.off();
     };
-  }, []);
+  }, [phone]);
 
   return (
     <div
-      className="dashboard text-slate-200 overflow-hidden font-sans relative"
-      style={{
-        width: '100%',
-        height: '100%',
-        backgroundImage: `url(${bgImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
+      className="dashboard text-slate-200 overflow-hidden font-sans relative bg-[#07182f]"
+      style={{ width: '100%', height: '100%' }}
     >
-      {/* Overlay：提亮基调的深蓝底 + 顶部青色氛围光 */}
+      <CityBackdrop />
+      {/* 深蓝遮罩压住路网，避免和地图、文字抢对比 */}
       <div className="absolute inset-0 bg-[#06162f]/75 pointer-events-none z-0" />
       <div
         className="absolute inset-0 pointer-events-none z-0"
@@ -48,13 +46,13 @@ export function App() {
       />
 
 
-      <div className="relative z-10 flex flex-col" style={{ width: '100%', height: '100%' }}>
+      <div className="dash-shell relative z-10 flex flex-col" style={{ width: '100%', height: '100%' }}>
         {/* Header */}
         <Header mode={mode} onToggleMode={() => setMode(m => (m === 'dispatch' ? 'report' : 'dispatch'))} />
 
         {/* Main Content */}
         <main
-          className="flex overflow-hidden"
+          className="dash-main flex overflow-hidden"
           style={{
             flex: 1,
             padding: '8px 16px 16px 16px',
@@ -65,7 +63,7 @@ export function App() {
           {mode === 'dispatch' ? <DispatchPanel /> : <LeftPanel />}
 
           {/* Center Map & Stats */}
-          <div style={{ flex: 1, height: '100%', minWidth: 0 }}>
+          <div className="center-slot" style={{ flex: 1, height: '100%', minWidth: 0 }}>
             <CenterPanel mode={mode} />
           </div>
 
