@@ -8,6 +8,17 @@
 
 ![汇报模式](./docs/screenshots/report-1920.webp)
 
+<table>
+<tr>
+<td width="400" align="center" valign="top"><img src="./docs/screenshots/highlight-window.webp" width="400" alt="08 号窗口详情"><br>超过 20 分钟会提示分流</td>
+<td width="400" align="center" valign="top"><img src="./docs/screenshots/highlight-site.webp" width="400" alt="桐庐县便民中心"><br>点击网点看队列和当日等待</td>
+</tr>
+<tr>
+<td width="400" align="center" valign="top"><img src="./docs/screenshots/highlight-urge.webp" width="400" alt="承诺件督办"><br>督办发出后按钮锁住</td>
+<td width="400" align="center" valign="top"><img src="./docs/screenshots/highlight-mobile.webp" width="400" alt="窄屏窗口矩阵"><br>窄屏窗口排成两列</td>
+</tr>
+</table>
+
 ## 功能
 
 - 顶栏切换调度 / 汇报。调度看队列和窗口，汇报看办件、人流和居住地。
