@@ -43,7 +43,7 @@ export function EfficiencyPanel() {
 
       <Card title="办件时效" className="min-h-0 flex-[1.6]">
         <QueryState query={efficiencyQuery}>
-        <div className="stat-grid-4 grid h-full grid-cols-4 gap-px overflow-hidden rounded-md bg-white/[0.08]">
+        <div className="stat-grid-4 grid h-full grid-cols-4 gap-px overflow-hidden rounded-md bg-[color:var(--gov-border)]">
           <KpiTile label="按期办结率" value={`${efficiency.onTimeRate}`} unit="%" warn={efficiency.onTimeRate < 99} />
           <KpiTile label="即办件占比" value={`${efficiency.immediateRate}`} unit="%" />
           <KpiTile label="平均办理" value={`${efficiency.avgProcessMinutes}`} unit="分钟" />
@@ -61,7 +61,7 @@ export function EfficiencyPanel() {
               type="button"
               onClick={() => setSelectedOverdue(o.id)}
               title="查看办件详情"
-              className="gov-btn flex w-full flex-col rounded-md px-2 py-1.5 text-left hover:bg-white/[0.04]"
+              className="gov-btn flex w-full flex-col rounded-md px-2 py-1.5 text-left hover:bg-[rgba(120,175,235,0.08)]"
             >
               <div className="flex min-w-0 items-center justify-between gap-2">
                 <span className="min-w-0 truncate text-[13px] text-[var(--gov-text-primary)]">{o.item}</span>
@@ -90,10 +90,10 @@ export function EfficiencyPanel() {
           <div className="flex w-24 shrink-0 flex-col items-center justify-center">
             <div className="relative h-20 w-20">
               <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 80 80">
-                <circle cx="40" cy="40" r="34" fill="transparent" stroke="rgba(255,255,255,0.08)" strokeWidth="4" />
+                <circle cx="40" cy="40" r="34" fill="transparent" stroke="rgba(124, 158, 196, 0.18)" strokeWidth="4" />
                 <circle
                   cx="40" cy="40" r="34"
-                  fill="transparent" stroke={theme.accent} strokeWidth="4"
+                  fill="transparent" stroke={theme.success} strokeWidth="4"
                   strokeDasharray={ring}
                   strokeDashoffset={ring - (ring * todayRate) / 100}
                 />
@@ -114,7 +114,7 @@ export function EfficiencyPanel() {
                 <div className="text-[13px] text-[var(--gov-text-muted)]">今日暂无差评</div>
               )}
               {satisfaction.badReviews.map((r, i) => (
-                <div key={`${r.time}-${i}`} className="min-w-0 border-b border-white/[0.06] pb-1.5">
+                <div key={`${r.time}-${i}`} className="min-w-0 border-b border-[color:var(--gov-border)] pb-1.5">
                   <div className="flex justify-between gap-2 text-[13px]">
                     <span className="min-w-0 truncate text-[var(--gov-text-primary)]">{r.item}</span>
                     <span className="shrink-0 font-mono text-xs tabular-nums text-[var(--gov-text-muted)]">{r.time}</span>
@@ -134,7 +134,7 @@ export function EfficiencyPanel() {
       <Card title="窗口人员" className="min-h-0 flex-[2.4]">
         <QueryState query={staffQuery}>
         <div className="chart-frame relative h-full">
-          <ChartLegend items={[{ label: '接待数', color: theme.series[0] }, { label: '满意率 %', color: theme.accent }]} />
+          <ChartLegend items={[{ label: '接待数', color: theme.blueLight }, { label: '满意率 %', color: theme.gold }]} />
           <EChart option={{
             grid: { ...chartGrid(narrow ? 40 : 0), right: 8 },
             tooltip: axisTooltip,
@@ -150,7 +150,7 @@ export function EfficiencyPanel() {
               }),
             ],
             series: [
-              barSeries('接待数', staff.map(d => d['接待数']), theme.series[0], 8),
+              barSeries('接待数', staff.map(d => d['接待数']), theme.blueLight, 8),
               {
                 name: '满意率',
                 type: 'line',
@@ -158,8 +158,8 @@ export function EfficiencyPanel() {
                 data: staff.map(d => d['满意度']),
                 symbol: 'circle',
                 symbolSize: 4,
-                lineStyle: { width: 1.5, color: theme.accent },
-                itemStyle: { color: theme.accent },
+                lineStyle: { width: 1.5, color: theme.gold },
+                itemStyle: { color: theme.gold },
               },
             ],
           }} />
@@ -205,8 +205,8 @@ export function EfficiencyPanel() {
               disabled={sent}
               className={`gov-btn mt-4 w-full rounded-md border py-1.5 text-[13px] ${
                 sent
-                  ? 'border-white/[0.12] text-[var(--gov-text-muted)]'
-                  : 'border-[var(--gov-danger)] text-[var(--gov-danger)] hover:bg-[rgba(224,138,132,0.08)]'
+                  ? 'border-[color:var(--gov-border-strong)] text-[var(--gov-text-muted)]'
+                  : 'border-[var(--gov-danger)] text-[var(--gov-danger)] hover:bg-[rgba(242,101,92,0.16)]'
               }`}
             >
               {sent ? '督办通知已发送至责任科室' : '发送督办通知'}

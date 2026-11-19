@@ -75,7 +75,7 @@ export function Header({ mode, onToggleMode }: HeaderProps) {
 
   const hasRedAlert = alertsState.alerts.some(a => a.level === 'red');
   let tickerText = announcement.data;
-  let tickerClass = 'text-[var(--gov-text-secondary)]';
+  let tickerClass = 'text-[#81d4fa]';
   let showAlertIcon = false;
   let showRetry = false;
   let retry = announcement.retry;
@@ -87,11 +87,11 @@ export function Header({ mode, onToggleMode }: HeaderProps) {
       tickerText = '告警数据加载中';
     } else if (alertsState.error) {
       tickerText = '告警数据加载失败';
-      tickerClass = 'text-[var(--gov-danger)]';
+      tickerClass = 'text-[#e8a19a]';
       showRetry = true;
     } else if (alertsState.alerts.length > 0) {
       tickerText = alertsState.alerts.map(a => `【${a.source}】${a.message}`).join('    ');
-      tickerClass = hasRedAlert ? 'text-[var(--gov-danger)]' : 'text-[var(--gov-warning)]';
+      tickerClass = hasRedAlert ? 'text-[#e8a19a]' : 'text-[#81d4fa]';
     } else {
       tickerText = '当前无待处理预警，大厅运行平稳';
     }
@@ -99,14 +99,14 @@ export function Header({ mode, onToggleMode }: HeaderProps) {
     tickerText = '公告加载中';
   } else if (announcement.error) {
     tickerText = '公告加载失败';
-    tickerClass = 'text-[var(--gov-danger)]';
+    tickerClass = 'text-[#e8a19a]';
     showRetry = true;
   } else if (announcement.empty) {
     tickerText = '暂无公告';
   }
 
   return (
-    <header className="flex flex-col gap-2 border-b border-white/[0.06] px-3 py-2.5 min-[1101px]:px-5">
+    <header className="flex flex-col gap-2 border-b border-[color:var(--gov-border)] px-3 py-2.5 min-[1101px]:px-5">
       <div className="flex flex-col gap-2 min-[1101px]:flex-row min-[1101px]:items-start min-[1101px]:justify-between min-[1101px]:gap-3">
         <div
           className="min-w-0 cursor-pointer select-none"
@@ -125,7 +125,7 @@ export function Header({ mode, onToggleMode }: HeaderProps) {
           <button
             type="button"
             onClick={onToggleMode}
-            className="gov-btn inline-flex items-center gap-1.5 rounded-md border border-white/[0.12] bg-white/[0.03] px-2.5 py-1 text-[13px] text-[var(--gov-text-primary)] hover:bg-white/[0.06]"
+            className="gov-btn inline-flex items-center gap-1.5 rounded-md border border-[#2563a8] bg-[rgba(12,35,68,0.85)] px-2.5 py-1 text-[13px] text-[#81d4fa] hover:border-[#4fc3f7] hover:text-white"
             title="切换调度 / 汇报模式"
           >
             {mode === 'dispatch'
@@ -134,15 +134,15 @@ export function Header({ mode, onToggleMode }: HeaderProps) {
             <span>{mode === 'dispatch' ? '汇报模式' : '调度模式'}</span>
           </button>
           <div className="text-right leading-tight">
-            <div className="font-mono text-[13px] tabular-nums text-[var(--gov-text-primary)]">{formatClock(time)}</div>
+            <div className="font-mono text-[13px] tabular-nums text-[#64b5f6]">{formatClock(time)}</div>
             <div className="text-xs text-[var(--gov-text-muted)]">{WEEKDAYS[time.getDay()]}</div>
           </div>
         </div>
       </div>
 
-      <div className={`flex min-w-0 items-center gap-2 rounded-md px-2 py-1 ${mode === 'dispatch' && hasRedAlert ? 'bg-[rgba(224,138,132,0.08)]' : 'bg-white/[0.03]'}`}>
+      <div className={`flex min-w-0 items-center gap-2 rounded-md px-2 py-1 ${mode === 'dispatch' && hasRedAlert ? 'bg-[rgba(242,101,92,0.16)]' : 'bg-[rgba(12,35,68,0.55)]'}`}>
         {showAlertIcon ? (
-          <AlertTriangle size={16} strokeWidth={1.75} className={`shrink-0 ${hasRedAlert ? 'text-[var(--gov-danger)]' : 'text-[var(--gov-warning)]'}`} />
+          <AlertTriangle size={16} strokeWidth={1.75} className={`shrink-0 ${hasRedAlert ? 'text-[var(--gov-danger)]' : 'text-[var(--gov-gold)]'}`} />
         ) : (
           <span className="shrink-0 text-xs text-[var(--gov-text-muted)]">公告</span>
         )}

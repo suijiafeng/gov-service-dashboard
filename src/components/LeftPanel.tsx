@@ -65,9 +65,9 @@ export function LeftPanel() {
             <div key={item.name} className="flex min-w-0 items-center gap-2">
               <span className="w-4 shrink-0 text-right font-mono text-xs tabular-nums text-[var(--gov-text-muted)]">{i + 1}</span>
               <span className="w-28 shrink-0 truncate text-[13px] text-[var(--gov-text-secondary)] max-[767px]:w-24">{item.name}</span>
-              <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-sm bg-white/[0.06]">
+              <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-sm bg-[rgba(120,175,235,0.16)]">
                 <div
-                  className="h-full rounded-sm bg-zinc-300 transition-[width] duration-150 ease-out"
+                  className="h-full rounded-sm bg-[#55a6e8] transition-[width] duration-150 ease-out"
                   style={{ width: `${(item.count / maxItemCount) * 100}%` }}
                 />
               </div>
@@ -99,15 +99,15 @@ export function LeftPanel() {
       <Card title="本周人流" className="min-h-0 flex-[2.2]">
         <QueryState query={flowQuery}>
         <div className="chart-frame relative h-full">
-          <ChartLegend items={[{ label: '现场办理', color: theme.series[0] }, { label: '网上办理', color: theme.series[2] }]} />
+          <ChartLegend items={[{ label: '现场办理', color: theme.blueLight }, { label: '网上办理', color: theme.gold }]} />
           <EChart option={{
             grid: chartGrid(narrow ? 40 : 0),
             tooltip: axisTooltip,
             xAxis: categoryAxis(animatedFlowData.map(d => String(d.name)), narrow ? 40 : 0),
             yAxis: valueAxis(),
             series: [
-              areaSeries('现场办理', animatedFlowData.map(d => Number(d['现场办理'])), theme.series[0]),
-              areaSeries('网上办理', animatedFlowData.map(d => Number(d['网上办理'])), theme.series[2]),
+              areaSeries('现场办理', animatedFlowData.map(d => Number(d['现场办理'])), theme.blueLight),
+              areaSeries('网上办理', animatedFlowData.map(d => Number(d['网上办理'])), theme.gold),
             ],
           }} />
         </div>
@@ -126,10 +126,10 @@ export function LeftPanel() {
           <div className="flex flex-col items-center justify-center">
             <div className="relative h-20 w-20">
               <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 80 80">
-                <circle cx="40" cy="40" r="34" fill="transparent" stroke="rgba(255,255,255,0.08)" strokeWidth="3" />
+                <circle cx="40" cy="40" r="34" fill="transparent" stroke="rgba(124, 158, 196, 0.18)" strokeWidth="3" />
                 <circle
                   cx="40" cy="40" r="34"
-                  fill="transparent" stroke={theme.accent} strokeWidth="3"
+                  fill="transparent" stroke={theme.gold} strokeWidth="3"
                   strokeDasharray={ring}
                   strokeDashoffset={ring - (ring * educationStats.bachelor) / 100}
                 />

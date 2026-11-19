@@ -18,7 +18,7 @@ export function QueryState({
   if (state.loading) {
     return (
       <div className="query-state flex h-full min-h-[120px] flex-col items-center justify-center gap-2 text-[var(--gov-text-muted)]" role="status">
-        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/15 border-t-[var(--gov-accent)]" />
+        <span className="h-4 w-4 animate-spin rounded-full border-2 border-[color:var(--gov-border)] border-t-[var(--gov-blue-soft)]" />
         <span className="text-[13px] tracking-normal">数据加载中</span>
       </div>
     );
@@ -32,7 +32,7 @@ export function QueryState({
         <button
           type="button"
           onClick={state.retry}
-          className="gov-btn mt-1 rounded-md border border-white/[0.14] px-3 py-1 text-[13px] text-[var(--gov-text-primary)] hover:bg-white/[0.06]"
+          className="gov-btn mt-1 rounded-md border border-[color:var(--gov-border-strong)] px-3 py-1 text-[13px] text-[var(--gov-text-primary)] hover:bg-[rgba(46,123,209,0.35)]"
         >
           重试
         </button>
