@@ -7,10 +7,10 @@ import { estimateWaitMinutes, queueLevel, evaluateAlerts, AlertItem } from '../u
 import { theme } from '../theme';
 
 const STATUS_META = {
-  busy: { label: '服务中', color: theme.textSecondary },
-  idle: { label: '空闲', color: theme.accent },
-  paused: { label: '暂停', color: theme.warning },
-  away: { label: '离席', color: theme.danger },
+  busy: { label: '服务中', color: '#55a6e8', bg: 'rgba(46,123,209,0.55)' },
+  idle: { label: '空闲', color: '#43cf8c', bg: 'rgba(67,207,140,0.25)' },
+  paused: { label: '暂停', color: '#f0b95a', bg: 'rgba(240,185,90,0.26)' },
+  away: { label: '离席', color: '#f2655c', bg: 'rgba(242,101,92,0.25)' },
 } as const;
 
 const LEVEL_COLOR = { red: 'var(--gov-danger)', yellow: 'var(--gov-warning)' } as const;
@@ -52,7 +52,7 @@ export function DispatchPanel() {
           {queues.map(q => {
             const wait = estimateWaitMinutes(q);
             const level = queueLevel(q);
-            const barColor = level === 'red' ? theme.danger : level === 'yellow' ? theme.warning : theme.series[1];
+            const barColor = level === 'red' ? '#f2655c' : level === 'yellow' ? '#f0b95a' : '#55a6e8';
             const waitLabel = Number.isFinite(wait) ? `约 ${wait} 分钟` : '暂无开放窗口';
             return (
               <button
@@ -61,11 +61,11 @@ export function DispatchPanel() {
                 onClick={() => setFocusBusiness(f => (f === q.type ? null : q.type))}
                 title="点击后只高亮该业务的窗口，再点一次恢复"
                 className={`gov-btn flex items-center gap-2 rounded-md px-1.5 py-0.5 text-left ${
-                  focusBusiness === q.type ? 'bg-white/[0.06]' : 'hover:bg-white/[0.04]'
+                  focusBusiness === q.type ? 'bg-[rgba(120,175,235,0.16)]' : 'hover:bg-[rgba(120,175,235,0.08)]'
                 }`}
               >
-                <span className={`w-[4.5rem] shrink-0 truncate text-[13px] ${focusBusiness === q.type ? 'text-[var(--gov-accent)]' : 'text-[var(--gov-text-secondary)]'}`}>{q.type}</span>
-                <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-sm bg-white/[0.06]">
+                <span className={`w-[4.5rem] shrink-0 truncate text-[13px] ${focusBusiness === q.type ? 'text-[var(--gov-link)]' : 'text-[var(--gov-text-secondary)]'}`}>{q.type}</span>
+                <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-sm bg-[rgba(120,175,235,0.16)]">
                   <div
                     className="h-full rounded-sm transition-[width] duration-150 ease-out"
                     style={{ width: `${(q.waiting / maxWaiting) * 100}%`, backgroundColor: barColor }}
@@ -81,7 +81,7 @@ export function DispatchPanel() {
             );
           })}
           <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1 pt-1 text-xs text-[var(--gov-text-muted)]">
-            <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: theme.series[1] }} />正常</span>
+            <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-[#55a6e8]" />正常</span>
             <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: theme.warning }} />超过 20 人或 30 分钟</span>
             <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: theme.danger }} />超过 35 人或 45 分钟</span>
           </div>
@@ -101,9 +101,10 @@ export function DispatchPanel() {
                 type="button"
                 onClick={() => setSelectedWindow(w.id)}
                 title="查看窗口详情"
-                className={`gov-btn flex min-w-0 flex-col items-center justify-center rounded-md border border-white/[0.08] bg-white/[0.02] px-1 py-1 text-center hover:bg-white/[0.05] ${
+                className={`gov-btn flex min-w-0 flex-col items-center justify-center rounded-md border px-1 py-1 text-center ${
                   dimmed ? 'opacity-30' : ''
                 }`}
+                style={{ backgroundColor: meta.bg, borderColor: meta.color }}
               >
                 <span className="font-mono text-[13px] tabular-nums text-[var(--gov-text-primary)]">{w.id}</span>
                 <span className="max-w-full truncate text-xs text-[var(--gov-text-secondary)]">{w.business}</span>
@@ -126,7 +127,7 @@ export function DispatchPanel() {
             </div>
           )}
           {pendingAlerts.map(a => (
-            <div key={a.key} className="rounded-md bg-white/[0.03] px-2 py-1.5">
+            <div key={a.key} className="rounded-md bg-[rgba(12,35,68,0.55)] px-2 py-1.5">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex min-w-0 items-center gap-2">
                   <span className="shrink-0 text-xs font-medium" style={{ color: LEVEL_COLOR[a.level] }}>
@@ -137,7 +138,7 @@ export function DispatchPanel() {
                 <button
                   type="button"
                   onClick={() => setAcknowledged(prev => new Set(prev).add(a.key))}
-                  className="gov-btn ml-1 shrink-0 rounded-md border border-white/[0.12] px-1.5 py-0.5 text-xs text-[var(--gov-text-secondary)] hover:bg-white/[0.06] hover:text-[var(--gov-text-primary)]"
+                  className="gov-btn ml-1 shrink-0 rounded-md border border-[color:var(--gov-border-strong)] px-1.5 py-0.5 text-xs text-[var(--gov-text-secondary)] hover:bg-[rgba(120,175,235,0.16)] hover:text-[var(--gov-text-primary)]"
                 >
                   确认处理
                 </button>
@@ -167,7 +168,7 @@ export function DispatchPanel() {
               <div className="py-6 text-center text-[13px] text-[var(--gov-text-muted)]">暂无该窗口详情</div>
             ) : (
             <>
-            <div className="stat-grid-4 mb-3 grid grid-cols-3 gap-px overflow-hidden rounded-md bg-white/[0.08]">
+            <div className="stat-grid-4 mb-3 grid grid-cols-3 gap-px overflow-hidden rounded-md bg-[color:var(--gov-border)]">
               {[
                 { label: '今日接待', value: d.todayServed.toLocaleString('zh-CN'), unit: '件' },
                 { label: '平均办理', value: String(d.avgMinutes), unit: '分钟' },

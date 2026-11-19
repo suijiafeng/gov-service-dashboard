@@ -6,7 +6,7 @@ import { axisFont, theme } from '../theme';
 export const axisTooltip = {
   trigger: 'axis' as const,
   backgroundColor: theme.surface,
-  borderColor: theme.border,
+  borderColor: theme.borderStrong,
   borderWidth: 1,
   textStyle: { color: theme.text, fontSize: 12 },
 };

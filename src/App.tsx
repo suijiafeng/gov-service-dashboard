@@ -34,7 +34,7 @@ export function App() {
 
   return (
     <div
-      className="dashboard relative overflow-hidden bg-[#09090B] font-sans text-zinc-200 antialiased"
+      className="dashboard relative overflow-hidden bg-[#07182f] font-sans text-[#c9daee] antialiased"
       style={{ width: '100%', height: '100%' }}
     >
       <CityBackdrop />

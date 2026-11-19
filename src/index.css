@@ -1,25 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --gov-bg-deep: #09090b;
-  --gov-bg-panel: #141416;
-  --gov-bg-panel-strong: #18181b;
-  --gov-border: rgba(255, 255, 255, 0.08);
-  --gov-border-strong: rgba(255, 255, 255, 0.14);
-  --gov-grid: rgba(255, 255, 255, 0.08);
-  --gov-text-primary: #f4f4f5;
-  --gov-text-secondary: #a1a1aa;
-  --gov-text-muted: #71717a;
-  --gov-accent: #7dccaa;
-  --gov-warning: #c4a574;
-  --gov-danger: #e08a84;
-  /* 旧变量名保留，值收到同一套中性色 / 语义色上，避免漏网的引用再画出蓝金。 */
-  --gov-blue: var(--gov-accent);
-  --gov-blue-light: var(--gov-accent);
-  --gov-blue-soft: var(--gov-accent);
-  --gov-gold: var(--gov-warning);
-  --gov-gold-soft: var(--gov-warning);
-  --gov-success: var(--gov-accent);
+  --gov-bg-deep: #0a2140;
+  --gov-bg-panel: rgba(14, 40, 74, 0.72);
+  --gov-bg-panel-strong: rgba(13, 37, 70, 0.94);
+  --gov-border: rgba(110, 168, 228, 0.55);
+  --gov-border-strong: #7fb3e8;
+  --gov-grid: rgba(140, 180, 225, 0.2);
+  --gov-text-primary: #f2f7fd;
+  --gov-text-secondary: #c9daee;
+  --gov-text-muted: #9ab6d6;
+  --gov-blue: #2e7bd1;
+  --gov-blue-light: #55a6e8;
+  --gov-blue-soft: #7cc4f0;
+  --gov-gold: #f0b95a;
+  --gov-gold-soft: #ffd188;
+  --gov-success: #43cf8c;
+  --gov-danger: #f2655c;
+  --gov-accent: #2e7bd1;
+  --gov-warning: #f0b95a;
+  --gov-link: #81d4fa;
+  --gov-focus: #4fc3f7;
 }
 
 html, body {
@@ -66,7 +67,7 @@ html, body {
 }
 
 .gov-btn:focus-visible {
-  outline: 1px solid var(--gov-accent);
+  outline: 1px solid var(--gov-focus);
   outline-offset: 2px;
 }
 
@@ -78,14 +79,14 @@ html, body {
   width: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(17, 58, 105, 0.2);
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(79, 195, 247, 0.5);
   border-radius: 3px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(79, 195, 247, 0.8);
 }
 
 .chart-plot-fixed {

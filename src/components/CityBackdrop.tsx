@@ -9,8 +9,8 @@ export function CityBackdrop() {
       preserveAspectRatio="xMidYMid slice"
       aria-hidden="true"
     >
-      <rect width="1920" height="1080" fill="#09090B" />
-      <g fill="none" stroke="#E4E4E7" strokeOpacity="0.045" strokeWidth="1">
+      <rect width="1920" height="1080" fill="#07182f" />
+      <g fill="none" stroke="#c5ddf0" strokeOpacity="0.28" strokeWidth="1">
         <path d="M0 216H1920M0 504H1920M0 792H1920" />
         <path d="M288 0V1080M768 0V1080M1248 0V1080M1632 0V1080" />
       </g>

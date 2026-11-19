@@ -25,9 +25,9 @@ const hangzhouMapData = HZJson as Parameters<typeof echarts.registerMap>[1];
 const MAIN_HALL: [number, number] = [120.2115, 30.2465];
 
 const SITE_STATUS_META = {
-  normal: { label: '正常', color: theme.series[1] },
-  busy: { label: '繁忙', color: theme.warning },
-  alert: { label: '积压', color: theme.danger },
+  normal: { label: '正常', color: '#43cf8c' },
+  busy: { label: '繁忙', color: '#f0b95a' },
+  alert: { label: '积压', color: '#f2655c' },
 } as const;
 
 function signed(value: number, digits: number) {
@@ -37,7 +37,7 @@ function signed(value: number, digits: number) {
 
 function deltaTone(favorable: boolean, flat: boolean) {
   if (flat) return 'var(--gov-text-muted)';
-  return favorable ? 'var(--gov-accent)' : 'var(--gov-danger)';
+  return favorable ? 'var(--gov-success)' : 'var(--gov-danger)';
 }
 
 export function CenterPanel({ mode }: { mode: DashboardMode }) {
@@ -126,7 +126,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
   const mapTooltip = {
     trigger: 'item' as const,
     backgroundColor: theme.surface,
-    borderColor: theme.border,
+    borderColor: theme.borderStrong,
     borderWidth: 1,
     textStyle: { color: theme.text, fontSize: 12 },
   };
@@ -147,7 +147,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
       textStyle: { color: theme.textMuted, fontSize: 11 },
       calculable: false,
       inRange: {
-        color: ['#2A2A2E', '#4A4A52', '#8A8A93', '#D4D4D8'],
+        color: mode === 'report' ? [...theme.mapReport] : [...theme.mapDispatch],
       },
     },
     geo: {
@@ -160,7 +160,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
       label: { show: false },
       itemStyle: {
         areaColor: 'transparent',
-        borderColor: 'rgba(255,255,255,0.38)',
+        borderColor: 'rgba(170, 205, 242, 0.95)',
         borderWidth: 1,
       },
       emphasis: { disabled: true },
@@ -174,14 +174,14 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
         top: phone ? '8px' : '72px',
         left: 'center',
         zlevel: 1,
-        label: { show: true, color: '#E4E4E7', fontSize: phone ? 11 : 12 },
+        label: { show: true, color: '#d5e4f5', fontSize: phone ? 11 : 12 },
         labelLayout: { hideOverlap: true },
-        itemStyle: { borderColor: 'rgba(255,255,255,0.28)', borderWidth: 0.8 },
+        itemStyle: { borderColor: 'rgba(155, 195, 235, 0.7)', borderWidth: 0.8 },
         emphasis: {
-          label: { show: true, color: '#F4F4F5', fontSize: 12, fontWeight: 600 },
+          label: { show: true, color: '#ffffff', fontSize: 12, fontWeight: 600 },
           itemStyle: {
-            areaColor: '#3F3F46',
-            borderColor: 'rgba(255,255,255,0.4)',
+            areaColor: 'rgba(215, 185, 122, 0.85)',
+            borderColor: '#ffe9b8',
             borderWidth: 1,
           },
         },
@@ -201,7 +201,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
               type: 'lines',
               zlevel: 2,
               effect: { show: false },
-              lineStyle: { color: 'rgba(125,204,170,0.45)', width: 1, opacity: 0.8, curveness: 0.18 },
+              lineStyle: { color: 'rgba(240, 185, 90, 0.65)', width: 1, opacity: 0.8, curveness: 0.18 },
               data: sites
                 .filter(s => s.name !== '市民中心（主厅）')
                 .map(s => ({ coords: [s.coord, MAIN_HALL] })),
@@ -218,7 +218,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
           show: !phone,
           position: 'right',
           formatter: (p: { name: string }) => (p.name === '市民中心（主厅）' ? '主厅' : ''),
-          color: '#F4F4F5',
+          color: '#f7fbff',
           fontSize: 12,
         },
         tooltip: {
@@ -233,7 +233,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
           waiting: s.waiting,
           statusLabel: SITE_STATUS_META[s.status].label,
           itemStyle: {
-            color: mode === 'report' ? theme.accent : SITE_STATUS_META[s.status].color,
+            color: mode === 'report' ? theme.reportScatter : SITE_STATUS_META[s.status].color,
             shadowBlur: 0,
             borderWidth: 0,
           },
@@ -282,14 +282,14 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
     <div className="center-panel flex h-full flex-1 flex-col px-2">
       <div className="map-stage relative min-h-0 flex-[8]">
         <QueryState query={mapQuery}>
-        <div className="map-overlay absolute top-3 left-3 z-10 max-w-[calc(100%-1rem)] rounded-md border border-white/[0.08] bg-[var(--gov-bg-panel-strong)] px-3 py-1.5">
+        <div className="map-overlay absolute top-3 left-3 z-10 max-w-[calc(100%-1rem)] rounded-md border border-[color:var(--gov-border)] bg-[var(--gov-bg-panel-strong)] px-3 py-1.5">
           <span className="text-sm font-semibold tracking-normal text-[var(--gov-text-primary)]">
             {mode === 'dispatch' ? '市域网点运行' : '办事市民居住地'}
           </span>
         </div>
 
         {mode === 'dispatch' ? (
-          <div className="map-overlay absolute top-3 right-3 z-20 max-w-full rounded-md border border-white/[0.08] bg-[var(--gov-bg-panel-strong)] px-3 py-2">
+          <div className="map-overlay absolute top-3 right-3 z-20 max-w-full rounded-md border border-[color:var(--gov-border)] bg-[var(--gov-bg-panel-strong)] px-3 py-2">
             <div className="mb-1.5 text-[13px] font-semibold tracking-normal text-[var(--gov-text-primary)]">全市网点</div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               {(Object.keys(SITE_STATUS_META) as (keyof typeof SITE_STATUS_META)[]).map(k => (
@@ -302,7 +302,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
             </div>
           </div>
         ) : (
-          <div className="map-overlay absolute top-3 right-3 z-20 w-56 max-w-full rounded-md border border-white/[0.08] bg-[var(--gov-bg-panel-strong)] px-3 py-2">
+          <div className="map-overlay absolute top-3 right-3 z-20 w-56 max-w-full rounded-md border border-[color:var(--gov-border)] bg-[var(--gov-bg-panel-strong)] px-3 py-2">
             <div className="mb-2 flex items-baseline justify-between gap-2">
               <span className="text-[13px] font-semibold tracking-normal text-[var(--gov-text-primary)]">来访区县</span>
               <span className="text-xs text-[var(--gov-text-muted)]">人次/日</span>
@@ -312,9 +312,9 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
                 <div key={p.name} className="flex min-w-0 items-center gap-2">
                   <span className="w-4 shrink-0 text-right font-mono text-xs tabular-nums text-[var(--gov-text-muted)]">{i + 1}</span>
                   <span className="w-14 shrink-0 truncate text-xs text-[var(--gov-text-secondary)]">{p.name}</span>
-                  <div className="h-1 min-w-0 flex-1 overflow-hidden rounded-sm bg-white/[0.06]">
+                  <div className="h-1 min-w-0 flex-1 overflow-hidden rounded-sm bg-[rgba(120,175,235,0.16)]">
                     <div
-                      className="h-full rounded-sm bg-zinc-400 transition-[width] duration-150 ease-out"
+                      className="h-full rounded-sm bg-[#55a6e8] transition-[width] duration-150 ease-out"
                       style={{ width: `${(p.value / maxResidence) * 100}%` }}
                     />
                   </div>
@@ -325,14 +325,14 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
           </div>
         )}
 
-        <div className="kpi-stack absolute right-3 bottom-6 z-20 w-44 overflow-hidden rounded-md border border-white/[0.08] bg-[var(--gov-bg-panel-strong)]">
+        <div className="kpi-stack absolute right-3 bottom-6 z-20 w-44 overflow-hidden rounded-md border border-[color:var(--gov-border)] bg-[var(--gov-bg-panel-strong)]">
           {[
             { label: '今日预约', value: dailyStats.totalAppointments },
             { label: '已完成', value: dailyStats.completed },
             { label: '办理中', value: dailyStats.processing },
             { label: '待办件', value: dailyStats.pending },
           ].map(item => (
-            <div key={item.label} className="flex items-baseline justify-between gap-2 border-b border-white/[0.06] px-3 py-1.5 last:border-b-0">
+            <div key={item.label} className="flex items-baseline justify-between gap-2 border-b border-[color:var(--gov-border)] px-3 py-1.5 last:border-b-0">
               <span className="text-xs text-[var(--gov-text-secondary)]">{item.label}</span>
               <span className="font-mono text-sm tabular-nums text-[var(--gov-text-primary)]">{item.value.toLocaleString('zh-CN')}</span>
             </div>
@@ -370,7 +370,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
           <Card title="分流与设备" className="h-full">
             <QueryState query={[diversionQuery, deviceQuery]}>
             <div className="split-row flex h-full items-stretch gap-3">
-              <div className="grid flex-1 grid-cols-3 gap-px overflow-hidden rounded-md bg-white/[0.08]">
+              <div className="grid flex-1 grid-cols-3 gap-px overflow-hidden rounded-md bg-[color:var(--gov-border)]">
                 {[
                   {
                     label: '网办分流率',
@@ -417,7 +417,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
           <Card title="近 6 个月运行成效" className="h-full">
             <QueryState query={trendQuery}>
             <div className="split-row flex h-full items-stretch gap-3">
-              <dl className="w-56 shrink-0 divide-y divide-white/[0.06]">
+              <dl className="w-56 shrink-0 divide-y divide-[color:var(--gov-border)]">
                 {trendCards.map(t => (
                   <div key={t.label} className="flex items-baseline justify-between gap-3 py-1.5">
                     <dt className="text-xs text-[var(--gov-text-secondary)]">{t.label}</dt>
@@ -429,7 +429,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
                 ))}
               </dl>
               <div className="chart-frame relative min-w-0 flex-1">
-                <ChartLegend items={[{ label: '平均等待（分钟）', color: theme.series[0] }, { label: '网办率 %', color: theme.accent }]} />
+                <ChartLegend items={[{ label: '平均等待（分钟）', color: theme.blueLight }, { label: '网办率 %', color: theme.gold }]} />
                 <EChart option={{
                   grid: chartGrid(0),
                   tooltip: axisTooltip,
@@ -445,7 +445,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
                     }),
                   ],
                   series: [
-                    barSeries('平均等待', performanceTrend.map(d => d['平均等待']), theme.series[0], 10),
+                    barSeries('平均等待', performanceTrend.map(d => d['平均等待']), theme.blueLight, 10),
                     {
                       name: '网办率',
                       type: 'line',
@@ -453,8 +453,8 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
                       data: performanceTrend.map(d => d['网办率']),
                       symbol: 'circle',
                       symbolSize: 4,
-                      lineStyle: { width: 1.5, color: theme.accent },
-                      itemStyle: { color: theme.accent },
+                      lineStyle: { width: 1.5, color: theme.gold },
+                      itemStyle: { color: theme.gold },
                     },
                   ],
                 }} />
@@ -482,7 +482,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
               <span className="font-mono text-xs tabular-nums text-[var(--gov-text-muted)]">值班 {detail.dutyPhone}</span>
             </div>
 
-            <div className="stat-grid-4 mb-4 grid grid-cols-4 gap-px overflow-hidden rounded-md bg-white/[0.08]">
+            <div className="stat-grid-4 mb-4 grid grid-cols-4 gap-px overflow-hidden rounded-md bg-[color:var(--gov-border)]">
               {[
                 { label: '当前等待', value: `${site.waiting}`, unit: '人', warn: site.status === 'alert' },
                 { label: '开放窗口', value: `${detail.openWindows}/${detail.totalWindows}`, unit: '' },
@@ -505,9 +505,9 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
                   {detail.queues.map(q => (
                     <div key={q.type} className="flex min-w-0 items-center gap-2">
                       <span className="w-16 shrink-0 truncate text-xs text-[var(--gov-text-secondary)]">{q.type}</span>
-                      <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-sm bg-white/[0.06]">
+                      <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-sm bg-[rgba(120,175,235,0.16)]">
                         <div
-                          className="h-full rounded-sm bg-zinc-400"
+                          className="h-full rounded-sm bg-[#55a6e8]"
                           style={{ width: `${(q.waiting / maxQ) * 100}%` }}
                         />
                       </div>
@@ -525,7 +525,7 @@ export function CenterPanel({ mode }: { mode: DashboardMode }) {
                     tooltip: axisValueTooltip((hour, value) => `${hour} 等待 ${value} 人`),
                     xAxis: categoryAxis(detail.hourly.map(d => d.hour), narrow ? 35 : 0),
                     yAxis: valueAxis(),
-                    series: [areaSeries('等待', detail.hourly.map(d => d.waiting), theme.series[0])],
+                    series: [areaSeries('等待', detail.hourly.map(d => d.waiting), theme.blueLight)],
                   }}
                 />
               </div>
