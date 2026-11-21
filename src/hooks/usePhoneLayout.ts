@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 // 1100px 以下不再把 1920 画布等比缩进去：800 宽会缩到约 0.42，正文只剩 5px。
-// 1366 和 1920 仍走大屏缩放。
+// 笔记本布局也关闭大屏缩放，由 CSS 制定列数。
 export const PHONE_MEDIA_QUERY = '(max-width: 1100px)';
 
 // 类目名只有在绘图区很窄时才倾斜。800 宽的堆叠图仍然放得下横排文字。
@@ -21,6 +21,10 @@ function useMediaQuery(query: string) {
   }, [query]);
 
   return matches;
+}
+
+export function useUnscaledLayout() {
+  return useMediaQuery('(max-width: 1440px)');
 }
 
 export function usePhoneLayout() {
