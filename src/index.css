@@ -267,3 +267,20 @@ html, body {
     padding-right: 4px;
   }
 }
+
+@media (1100px < width <= 1440px) {
+  html, body, #root { height: auto; min-height: 100%; overflow-y: auto; }
+  .dashboard, .dash-shell { height: auto !important; min-height: 100vh; }
+  .dash-main {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible !important;
+  }
+  .dash-main > .center-slot {
+    height: auto !important;
+    min-height: 620px;
+  }
+  .center-slot > .center-panel { height: 620px; }
+  .dash-main > .side-panel { width: 100% !important; height: 690px; }
+  .dash-main > .side-panel:last-child { grid-column: 1 / -1; }
+}

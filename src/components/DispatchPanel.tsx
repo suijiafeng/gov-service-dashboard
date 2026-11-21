@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Card } from './Card';
 import { Modal } from './Modal';
 import { QueryState } from './QueryState';
@@ -27,6 +27,17 @@ export function useAlerts() {
   return { alerts, ...combineQueries([queues, windows, devices, overdue]) };
 }
 
+const ACKNOWLEDGED_KEY = 'gov-dashboard:acknowledged-alerts:v1';
+
+function readAcknowledged(): Set<string> {
+  try {
+    const entries: unknown = JSON.parse(sessionStorage.getItem(ACKNOWLEDGED_KEY) ?? '[]');
+    return new Set(Array.isArray(entries) ? entries.filter((key): key is string => typeof key === 'string') : []);
+  } catch {
+    return new Set();
+  }
+}
+
 export function DispatchPanel() {
   const queueQuery = useQueueData();
   const windowQuery = useWindowMatrix();
@@ -36,9 +47,17 @@ export function DispatchPanel() {
   const windows = windowQuery.data;
   const windowDetails = windowDetailsQuery.data;
   const alerts: AlertItem[] = alertsState.alerts;
-  const [acknowledged, setAcknowledged] = useState<Set<string>>(new Set());
+  const [acknowledged, setAcknowledged] = useState(readAcknowledged);
   const [selectedWindow, setSelectedWindow] = useState<string | null>(null);
   const [focusBusiness, setFocusBusiness] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(ACKNOWLEDGED_KEY, JSON.stringify([...acknowledged]));
+    } catch {
+      // 存储不可用时，本次打开页面仍保留已处理状态。
+    }
+  }, [acknowledged]);
 
   const maxWaiting = Math.max(...queues.map(q => q.waiting), 1);
   const pendingAlerts = alerts.filter(a => !acknowledged.has(a.key));
@@ -138,7 +157,7 @@ export function DispatchPanel() {
                 <button
                   type="button"
                   onClick={() => setAcknowledged(prev => new Set(prev).add(a.key))}
-                  className="gov-btn ml-1 shrink-0 rounded-md border border-[color:var(--gov-border-strong)] px-1.5 py-0.5 text-xs text-[var(--gov-text-secondary)] hover:bg-[rgba(120,175,235,0.16)] hover:text-[var(--gov-text-primary)]"
+                  className="gov-btn ml-1 min-h-9 shrink-0 rounded-md border border-[color:var(--gov-border-strong)] px-1.5 py-0.5 text-xs text-[var(--gov-text-secondary)] hover:bg-[rgba(120,175,235,0.16)] hover:text-[var(--gov-text-primary)]"
                 >
                   确认处理
                 </button>
